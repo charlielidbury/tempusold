@@ -1,3 +1,1 @@
-<?php
-echo "Hello World!\n"
-?>
+<?php echo password_hash('password', PASSWORD_DEFAULT); ?>
