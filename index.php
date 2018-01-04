@@ -2,7 +2,7 @@
 
 session_start();
 
-if (isset($_SESSION['username']))
+if (isset($_SESSION['user_data']))
 {
 	include "home.php";
 } else {

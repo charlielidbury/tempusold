@@ -2,7 +2,7 @@
 include("conf.php");
 
 // Make connection
-$conn = new mysqli($host, $user, $pass, $dbname);
+$conn = new mysqli($host, $user, $pass, $name);
 
 // Check connection
 if ($conn->connect_error)
