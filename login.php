@@ -30,8 +30,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') // login has been pressed
 			if (password_verify($_POST["password"], $row["hash"]))
 			{
 				// password is correct
+				// THIS IS WHERE THE LOGIN HAPPENS
 				session_start();
 				$_SESSION['user_data'] = $row;
+				die(var_dump($_SESSION['user_data']));
+
+				// Prepare statement to get perms
+				$stmt = $conn->prepare("SELECT * FROM `role` WHERE `role` = ?");
+
+				if (!$stmt) die ("Statement failed to prepare: " . $mysqli->error);
+
+				// execute query
+				$stmt->bind_param("s", $_SESSION["user_data"]["role"]);
+				$stmt->execute();
+
+				// get result
+				$result = $stmt->get_result();
+				$_SESSION["user_data"]["perms"] = $result->fetch_assoc();
+
+				// Sends user to home page
 				header("Location: .");
 
 			} else {
@@ -51,6 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') // login has been pressed
 	<head>
 		<meta charset="utf-8">
 		<title>Tempus - Login</title>
+		<link rel="stylesheet" href="styles.css">
 	</head>
 	<body>
 		<h1><a href=".">Tempus</a></h1>
