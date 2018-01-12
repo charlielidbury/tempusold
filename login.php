@@ -11,7 +11,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') // login has been pressed
 	} else {
 
 		// getting the data from the database
-		include "db.php";
+		include "./src/db.php";
 
 		$stmt = $conn->prepare("SELECT * FROM `employee` WHERE `name` = ?");
 
@@ -33,7 +33,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') // login has been pressed
 				// THIS IS WHERE THE LOGIN HAPPENS
 				session_start();
 				$_SESSION['user_data'] = $row;
-				die(var_dump($_SESSION['user_data']));
 
 				// Prepare statement to get perms
 				$stmt = $conn->prepare("SELECT * FROM `role` WHERE `role` = ?");
@@ -49,7 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') // login has been pressed
 				$_SESSION["user_data"]["perms"] = $result->fetch_assoc();
 
 				// Sends user to home page
-				header("Location: .");
+				header("Location: /home/");
 
 			} else {
 				// password is incorrect
@@ -74,7 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') // login has been pressed
 		<h1><a href=".">Tempus</a></h1>
 		<h2><a href="login.php">Login</a></h2>
 
-		<p>Please login here; to create an account please contact an admin who can make one for you.</p>
+		<p>Do you see https:// in the top left? No. Nothing about this site is secure. So please use a unique password for it.</p>
 
 		<ul> <?php
 			foreach ($errors as $error) echo "<li>$error</li>";

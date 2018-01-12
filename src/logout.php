@@ -20,5 +20,5 @@ if (ini_get("session.use_cookies")) {
 session_destroy();
 
 // Go back home.
-header("Location: .");
+header("Location: ..");
 ?>

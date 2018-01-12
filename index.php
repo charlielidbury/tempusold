@@ -4,7 +4,7 @@ session_start();
 
 if (isset($_SESSION['user_data']))
 {
-	include "home.php";
+	header("Location: /home/");
 } else {
 	include "login.php";
 }
