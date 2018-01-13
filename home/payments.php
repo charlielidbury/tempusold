@@ -1,6 +1,8 @@
 <?php
 session_start();
 include "../src/db.php";
+
+if (!isset($_SESSION['user_data'])) header("Location: ..");
 ?>
 <!DOCTYPE html>
 <html>

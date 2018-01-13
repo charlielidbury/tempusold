@@ -4,6 +4,8 @@ include "../src/db.php";
 
 if ($_SESSION['user_data']['perms']['members'] == "none")
 	header("Location: ../permission_denied.php");
+
+if (!isset($_SESSION['user_data'])) header("Location: ..");
 ?>
 
 <!DOCTYPE html>
@@ -16,7 +18,7 @@ if ($_SESSION['user_data']['perms']['members'] == "none")
 	<body>
 		<h1><a href="index.php">Tempus</a></h1>
 		<h2><a href=".">Home</a></h2>
-		<h3><a href="profile.php">Members</a></h3>
+		<h3><a href="members.php">Members</a></h3>
 
 		<?php
 		if (isset($_GET['user']))
