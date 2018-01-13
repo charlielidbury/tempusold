@@ -11,7 +11,7 @@ if (!isset($_SESSION['user_data'])) header("Location: ..");
 	</head>
 	<body>
 		<h1><a href="index.php">Tempus</a></h1>
-		<h2><a href="home.php">Home</a></h2>
+		<h2><a href=".">Home</a></h2>
 		<h3>Logged in as <?= $_SESSION["user_data"]["name"]; ?></h3>
 		<ul>
 			<li><a href="profile.php">Profile</a></li>

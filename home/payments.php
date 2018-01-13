@@ -13,7 +13,7 @@ if (!isset($_SESSION['user_data'])) header("Location: ..");
 	</head>
 	<body>
 		<h1><a href="index.php">Tempus</a></h1>
-		<h2><a href="home.php">Home</a></h2>
+		<h2><a href=".">Home</a></h2>
 		<h3><a href="payments.php">Payments</a></h3>
 		<?php query2Table($conn, "CALL userPayments(?)", "s", $_SESSION['user_data']['name']); ?>
 	</body>
