@@ -1,0 +1,8 @@
+1. name # must be username that doesnt already exist
+2. email # just email regex
+3. discord # bigint input field
+4. icon # link with preview
+5. rate # floating point field
+6. rank # change button that links to a drag about thing
+7. role # dropdown
+8. hash # change password

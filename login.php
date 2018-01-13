@@ -13,18 +13,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') // login has been pressed
 		// getting the data from the database
 		include "./src/db.php";
 
-		$stmt = $conn->prepare("SELECT * FROM `employee` WHERE `name` = ?");
+		$row = getRow($conn, "employee", "name", $_POST['username']);
 
-		if (!$stmt) die ("Statement failed to prepare: " . $mysqli->error);
-
-		// execute query
-		$stmt->bind_param("s", $_POST['username']);
-		$stmt->execute();
-
-		// get result
-		$result = $stmt->get_result();
-
-		if ($row = $result->fetch_assoc())
+		if ($row)
 		{
 			// user exists
 			if (password_verify($_POST["password"], $row["hash"]))
@@ -32,20 +23,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') // login has been pressed
 				// password is correct
 				// THIS IS WHERE THE LOGIN HAPPENS
 				session_start();
+
 				$_SESSION['user_data'] = $row;
+				$_SESSION["user_data"]["perms"] = getRow($conn, "role", "role", $_SESSION["user_data"]["role"]);
 
-				// Prepare statement to get perms
-				$stmt = $conn->prepare("SELECT * FROM `role` WHERE `role` = ?");
-
-				if (!$stmt) die ("Statement failed to prepare: " . $mysqli->error);
-
-				// execute query
-				$stmt->bind_param("s", $_SESSION["user_data"]["role"]);
-				$stmt->execute();
-
-				// get result
-				$result = $stmt->get_result();
-				$_SESSION["user_data"]["perms"] = $result->fetch_assoc();
+				//die(var_dump($_SESSION['user_data']));
 
 				// Sends user to home page
 				header("Location: /home/");

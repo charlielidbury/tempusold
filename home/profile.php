@@ -19,7 +19,7 @@
 			</tr>
 			<tr>
 				<td>Password</td>
-				<td><a href="#">Change</a></td>
+				<td><a href="change_password.php">Change</a></td>
 			</tr>
 			<tr>
 				<td>Icon</td>

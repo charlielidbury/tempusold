@@ -4,8 +4,8 @@ include "../src/db.php";
 
 if ($_SESSION['user_data']['perms']['members'] == "none")
 	header("Location: ../permission_denied.php");
-
 ?>
+
 <!DOCTYPE html>
 <html>
 	<head>
@@ -17,8 +17,21 @@ if ($_SESSION['user_data']['perms']['members'] == "none")
 		<h1><a href="index.php">Tempus</a></h1>
 		<h2><a href=".">Home</a></h2>
 		<h3><a href="profile.php">Members</a></h3>
+
 		<?php
-		query2Table($conn, "SELECT * FROM `view_employee`");
+		if (isset($_GET['user']))
+		{
+			// PAGE FOR EDITING A SPECIFIC MEMBER
+			if ($_SESSION['user_data']['perms']['members'] == "edit")
+			{
+				include "edit_employee.php";
+			} else {
+				header("Location: ../permission_denied.php");
+			}
+		} else {
+			// PAGE FOR VIEWING ALL MEMBERS
+			query2Table($conn, "SELECT * FROM `view_employee`");
+		}
 		?>
 	</body>
 </html>
