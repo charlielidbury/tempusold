@@ -57,12 +57,13 @@ function getCell($conn, $column, $table, $key, $value)
 {
 	/*
 	GETS A CELL FROM A table
+	WARNING: ONLY THE $value IS SAFE, DO NOT USE USER INPUT FOR ANY OTHER ARGUMENT
 
 	$conn <= connection object
 	$table <= name of table data is to be extracted from
 	$column <= which field the data is stored in
 	$key <= field for data to be recognised with (WHERE $key = "Charlie")
-	$key <= value for data to be recognised with (WHERE "name" = $value)
+	$value <= value for data to be recognised with (WHERE "name" = $value)
 
 	returns => the single value from the table
 	*/
@@ -95,6 +96,50 @@ function getCell($conn, $column, $table, $key, $value)
 	$stmt->close();
 
 	return $row[0];
+
+}
+
+function getRow($conn, $table, $key, $value)
+{
+	/*
+	GETS A ROW FROM A table
+	WARNING: ONLY THE $value IS SAFE, DO NOT USE USER INPUT FOR ANY OTHER ARGUMENT
+
+	$conn <= connection object
+	$table <= name of table data is to be extracted from
+	$key <= field for data to be recognised with (WHERE $key = "Charlie")
+	$value <= value for data to be recognised with (WHERE "name" = $value)
+
+	returns => the single row from the table (associative array)
+	*/
+
+	$stmt = $conn->prepare("SELECT * FROM `$table` WHERE `$key` = ?");
+
+	if (!$stmt) die ("Statement failed to prepare: " . $conn->error);
+
+	// makes the format string 'sssi' for instance
+	$conversion = array(
+		"integer" => "i",
+		"double"  => "d",
+		"string"  => "s"
+	);
+
+	$format = $conversion[gettype($value)];
+
+	// binds things together
+	$stmt->bind_param($format, $value);
+	// execute query
+	$stmt->execute();
+
+	// get result
+	$result = $stmt->get_result();
+
+	// gets result
+	$row = $result->fetch_assoc();
+
+	$stmt->close();
+
+	return $row;
 
 }
 
