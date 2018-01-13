@@ -6,7 +6,7 @@ if (!isset($_SESSION['user_data'])) header("Location: ..");
 <html>
 	<head>
 		<meta charset="utf-8">
-		<title>Test</title>
+		<title>Tempus - Home</title>
 		<link rel="stylesheet" href="../css/style.css">
 	</head>
 	<body>
