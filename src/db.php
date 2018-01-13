@@ -3,6 +3,7 @@ include("conf.php");
 
 // Make connection
 $conn = new mysqli($host, $user, $pass, $name);
+$conn->set_charset("utf-8");
 
 // Check connection
 if ($conn->connect_error)

@@ -1,4 +1,7 @@
-<?php session_start(); ?>
+<?php
+session_start();
+include "../src/db.php";
+?>
 <!DOCTYPE html>
 <html>
 	<head>
@@ -56,6 +59,29 @@
 						<tr>
 							<td>Sessions</td>
 							<td><?= $_SESSION["user_data"]["perms"]["sessions"]; ?></td>
+						</tr>
+					</table>
+				</td>
+			</tr>
+			<tr>
+				<td>Stats</td>
+				<td>
+					<table>
+						<tr>
+							<td>Total Hours</td>
+							<td><?= getCell($conn, "Total Hours", "view_employee", "name", $_SESSION['user_data']['name']); ?></td>
+						</tr>
+						<tr>
+							<td>Total Earnt</td>
+							<td>£<?= getCell($conn, "Total Earnt", "view_employee", "name", $_SESSION['user_data']['name']); ?></td>
+						</tr>
+						<tr>
+							<td>Outstanding</td>
+							<td>£<?= getCell($conn, "Outstanding", "view_employee", "name", $_SESSION['user_data']['name']); ?></td>
+						</tr>
+						<tr>
+							<td>Join Date</td>
+							<td><?= getCell($conn, "Join Date", "view_employee", "name", $_SESSION['user_data']['name']); ?></td>
 						</tr>
 					</table>
 				</td>
