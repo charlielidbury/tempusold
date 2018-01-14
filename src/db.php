@@ -245,6 +245,13 @@ function table2HTML($conn, $query, $format, $arg)
 
 function hasPerms($conn, $perm, $level)
 {
+	/*
+	CHECKS IF USER HAS PERMISSIONS
+
+	$perm <= name for permission ("members", "sessions", ... )
+	$level <= level of perm ("none", "view", ... )
+	*/
+
 	$role = getCell($conn, "role", "employee", "name", $_SESSION['user']);
 	return getCell($conn, $perm, "role", "role", $role) == $level;
 }
