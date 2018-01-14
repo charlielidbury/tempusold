@@ -101,6 +101,40 @@ function getRow($conn, $table, $key, $value)
 
 }
 
+function getColumn($conn, $table, $field)
+{
+	/*
+	GETS A COLUMN FROM A table
+	WARNING: ONLY THE $value IS SAFE, DO NOT USE USER INPUT FOR ANY OTHER ARGUMENT
+
+	$conn <= connection object
+	$table <= name of table data is to be extracted from
+	$field <= column to return an array of
+
+	returns => the single row from the table (associative array)
+	*/
+
+	$stmt = $conn->prepare("SELECT `$field` FROM `$table`");
+
+	if (!$stmt) die ("Statement failed to prepare: " . $conn->error);
+
+	// execute query
+	$stmt->execute();
+
+	// get result
+	$result = $stmt->get_result();
+
+	// gets result
+	$final = [];
+	while ($row = $result->fetch_row())
+		$final[] = $row[0];
+
+	$stmt->close();
+
+	return $final;
+
+}
+
 function getTable()
 {
 
