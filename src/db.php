@@ -297,4 +297,33 @@ function updateRow($conn, $table, $key, $value, $changes)
 	$stmt->execute();
 }
 
+function insertRow($conn, $table, $row)
+{
+	/*
+	INSERTS A ROW INTO THE SPECIFIED TABLE
+
+	$conn <= connection object
+	$table <= table to insert into
+	$row <= accociative array where the key is the field and the value is the new value
+		~ i.e: array( 'name' => "CharlieLidbury" ) sets name to CharlieLidbury
+	*/
+
+	// creates query
+	$fields = "";
+	$values = "";
+	foreach ($row as $field => $value)
+	{
+		if ($value == "") continue;
+		$fields .= "`$field`, "; // (`name`, `hash`)
+		$values .= "'{$conn->escape_string($value)}', "; // ('Charlie', 'akl;hwdjnshjdawbjadwbjkl')
+	}
+	$fields = substr($fields, 0, -2);
+	$values = substr($values, 0, -2);
+
+	$query = "INSERT INTO `$table` ($fields) VALUES ($values)";
+
+	// execute!
+	$conn->query($query);
+}
+
 ?>
