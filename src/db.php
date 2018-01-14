@@ -249,4 +249,42 @@ function hasPerms($conn, $perm, $level)
 	return getCell($conn, $perm, "role", "role", $role) == $level;
 }
 
+function updateRow($conn, $table, $key, $value, $changes)
+{
+	/*
+	MAKES A LIST OF CHANGES TO A ROW IN A TABLE
+	WARNING: DOES NOT WORK WHEN UPDATING CELLS TO NULL VALUE
+
+	$conn <= connection object
+	$table <= table the row is in
+	$key <= key used to identify that row (WHERE ? = "Charlie")
+	$value <= value the key should be at row (WHERE `name` = ?)
+	$changes <= accociative array where the key is the field and the value is the new value
+		~ i.e: array( 'name' => "CharlieLidbury" ) changes the name to Charlie of selected rows
+	*/
+
+	// creates query
+	$query = "UPDATE `$table` SET\n "; // "UPDATE `employee` SET "
+	foreach ($changes as $field => $new)
+		$query .= "\t`$field` = '$new',\n"; // "`email` = 'charlie.lidbury@icloud.com', "
+	$query = substr($query, 0, -2); // removes trailing comma and newline
+	$query .= "\nWHERE `$key` = ?\n"; // "WHERE `name` = 'Charlie'"
+
+	// prepares statement
+	$stmt = $conn->prepare($query);
+	if (!$stmt) die ("Statement failed to prepare: " . $mysqli->error);
+
+	// makes the format string
+	$conversion = array(
+		"integer" => "i",
+		"double"  => "d",
+		"string"  => "s"
+	);
+	$format = $conversion[gettype($value)];
+
+	// execute query
+	$stmt->bind_param($format, $value);
+	$stmt->execute();
+}
+
 ?>
