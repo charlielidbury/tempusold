@@ -61,11 +61,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') // login has been pressed
 			<table>
 				<tr>
 					<td>New Password:</td>
-					<td><input type="password" name="new" /> <br/></td>
+					<td><input type="password" name="new" /></td>
 				</tr>
 				<tr>
 					<td>New Password Verify:</td>
-					<td><input type="password" name="verify" /> <br/></td>
+					<td><input type="password" name="verify" /></td>
 				</tr>
 			</table>
 			<input type="submit" value="Change" name="submit" />

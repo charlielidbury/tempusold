@@ -273,7 +273,10 @@ function updateRow($conn, $table, $key, $value, $changes)
 	// creates query
 	$query = "UPDATE `$table` SET\n "; // "UPDATE `employee` SET "
 	foreach ($changes as $field => $new)
-		$query .= "\t`$field` = '$new',\n"; // "`email` = 'charlie.lidbury@icloud.com', "
+		if ($new == "")
+			$query .= "\t`$field` = NULL,\n"; // "`email` = NULL, "
+		else
+			$query .= "\t`$field` = '$new',\n"; // "`email` = 'charlie.lidbury@icloud.com', "
 	$query = substr($query, 0, -2); // removes trailing comma and newline
 	$query .= "\nWHERE `$key` = ?\n"; // "WHERE `name` = 'Charlie'"
 
