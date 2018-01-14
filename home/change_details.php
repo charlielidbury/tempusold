@@ -70,6 +70,9 @@ $user_data = getRow($conn, "employee", "name", $_GET['user']);
 	<body>
 		<h1><a href="..">Tempus</a></h1>
 		<h2><a href=".">Home</a></h2>
+		<?php if(!hasPerms($conn, "Members", "none")): ?>
+		<h3><a href="members.php">Members</a></h3>
+		<?php endif ?>
 		<h3><a href="change_details.php">Edit Details</a></h3>
 		<p>Edit Profile Details:</p>
 
