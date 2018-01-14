@@ -1,46 +1,33 @@
 <?php
 if ($_SERVER['REQUEST_METHOD'] == 'POST') // login has been pressed
 {
-	// initial data validation
+	// getting the data from the database
+	include "./src/db.php";
+	$row = getRow($conn, "employee", "name", $_POST['username']);
+
 	$errors = array();
 
+	// CHECK: USERNAME ISN'T BLANK
 	if (0 === preg_match("/\S+/", $_POST['username']))
-	{
-		// checks username has non-whitespaces
 		$errors[] = "Must enter a username.";
-	} else {
 
-		// getting the data from the database
-		include "./src/db.php";
+	// CHECK: USER EXISTS
+	if (!$row)
+		$errors[] = "User ${_POST['username']} does not exist.";
 
-		$row = getRow($conn, "employee", "name", $_POST['username']);
+	// CHECK: PASSWORD IS CORRECT
+	if (!password_verify($_POST["password"], $row["hash"]))
+		$errors[] = "Incorrect password";
 
-		if ($row)
-		{
-			// user exists
-			if (password_verify($_POST["password"], $row["hash"]))
-			{
-				// password is correct
-				// THIS IS WHERE THE LOGIN HAPPENS
-				session_start();
+	// ACTUAL LOGIN
+	if (!count($errors))
+	{
+		session_start();
 
-				$_SESSION['user_data'] = $row;
-				$_SESSION["user_data"]["perms"] = getRow($conn, "role", "role", $_SESSION["user_data"]["role"]);
+		$_SESSION['user'] = $_POST['username'];
 
-				//die(var_dump($_SESSION['user_data']));
-
-				// Sends user to home page
-				header("Location: /home/");
-
-			} else {
-				// password is incorrect
-				$errors[] = "Incorrect password";
-			}
-
-		} else {
-			// user doesn't exist
-			$errors[] = "User ${_POST['username']} does not exist.";
-		}
+		// Sends user to home page
+		header("Location: /home/");
 	}
 }
 ?>

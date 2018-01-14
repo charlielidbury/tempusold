@@ -1,34 +1,32 @@
 <?php
 session_start();
 
-// makes sure only logged in users get here
-if (!isset($_SESSION['user_data'])) header("Location: ..");
-
 include "../src/db.php";
+
+// makes sure only logged in users get here
+if (!isset($_SESSION['user'])) header("Location: ..");
 
 if (isset($_GET['user']))
 {
 	// if custom user the logged in user must have perms to edit member's details
 	$user = $_GET['user'];
-	if ($_SESSION['user_data']['perms']['members'] != "edit") header("Location: ../permission_denied.php");
+	if (!hasPerms($conn, "members", "edit") && $_SESSION['user'] != $_GET['user']) header("Location: ../permission_denied.php");
 } else {
 	// otherwise just use the logged in user
-	$user = $_SESSION['user_data']['name'];
+	$user = $_SESSION['user'];
 }
-
-$hash = $_SESSION['user_data']['hash'];
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') // login has been pressed
 {
-	// initial data validation
 	$errors = array();
 
-	// password correct
-	if ($_POST['new'] === $_POST['verify'])
-	{
-		// passwords are the same (no typos!)
-		// update the database
+	// CHECK: PASSWORDS ARE THE SAME
+	if ($_POST['new'] !== $_POST['verify'])
+		$errors[] = "Passwords must match";
 
+	// ACTUAL PASSWORD CHANGE
+	if (!count($errors))
+	{
 		$new_hash = password_hash($_POST['new'], PASSWORD_DEFAULT);
 
 		$stmt = $conn->prepare("UPDATE `employee` SET `hash` = ? WHERE `name` = ?");
@@ -38,13 +36,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') // login has been pressed
 		$stmt->execute();
 
 		header("Location: .");
-
-	} else {
-		// passwords are not the same
-		$errors[] = "Passwords must match";
 	}
 }
 ?>
+
 <!DOCTYPE html>
 <html>
 	<head>

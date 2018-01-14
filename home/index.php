@@ -1,6 +1,9 @@
 <?php
+include "../src/db.php";
+
 session_start();
-if (!isset($_SESSION['user_data'])) header("Location: ..");
+
+if (!isset($_SESSION['user'])) header("Location: ..");
 ?>
 <!DOCTYPE html>
 <html>
@@ -12,10 +15,10 @@ if (!isset($_SESSION['user_data'])) header("Location: ..");
 	<body>
 		<h1><a href="index.php">Tempus</a></h1>
 		<h2><a href=".">Home</a></h2>
-		<h3>Logged in as <?= $_SESSION["user_data"]["name"]; ?></h3>
+		<h3>Logged in as <?= $_SESSION["user"]; ?></h3>
 		<ul>
 			<li><a href="profile.php">Profile</a></li>
-			<?php if ($_SESSION["user_data"]["perms"]["members"] == "edit"): ?>
+			<?php if (hasPerms($conn, "members", "edit")): ?>
 			<li><a href="members.php">Members</a></li>
 			<?php endif ?>
 			<li><a href="sessions.php">Sessions</a></li>

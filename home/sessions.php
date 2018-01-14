@@ -2,7 +2,8 @@
 session_start();
 include "../src/db.php";
 
-if (!isset($_SESSION['user_data'])) header("Location: ..");
+// makes sure only logged on users past this point
+if (!isset($_SESSION['user'])) header("Location: ..");
 ?>
 <!DOCTYPE html>
 <html>
@@ -15,6 +16,6 @@ if (!isset($_SESSION['user_data'])) header("Location: ..");
 		<h1><a href="index.php"   >Tempus</a></h1>
 		<h2><a href="."           >Home</a></h2>
 		<h3><a href="sessions.php">Sessions</a></h3>
-		<?php table2HTML($conn, "CALL userSessions(?)", "s", $_SESSION['user_data']['name']); ?>
+		<?php table2HTML($conn, "CALL userSessions(?)", "s", $_SESSION['user']); ?>
 	</body>
 </html>

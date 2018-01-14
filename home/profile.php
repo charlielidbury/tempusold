@@ -2,7 +2,8 @@
 session_start();
 include "../src/db.php";
 
-if (!isset($_SESSION['user_data'])) header("Location: ..");
+// makes sure only logged on users past this point
+if (!isset($_SESSION['user'])) header("Location: ..");
 ?>
 <!DOCTYPE html>
 <html>
@@ -20,9 +21,9 @@ if (!isset($_SESSION['user_data'])) header("Location: ..");
 		<?php
 		// adds permissions to the table
 		$extra = '<tr><td>Permissions</td><td>';
-		$extra .= row2HTML($conn, "role", "role", $_SESSION['user_data']['role']);
+		$extra .= row2HTML($conn, "role", "role", getCell($conn, "role", "employee", "name", $_SESSION['user']));
 		$extra .= '</td></tr>';
-		echo row2HTML($conn, "view_employee", "name", $_SESSION['user_data']['name'], $extra);
+		echo row2HTML($conn, "view_employee", "name", $_SESSION['user'], $extra);
 		?>
 	</body>
 </html>

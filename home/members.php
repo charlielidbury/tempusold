@@ -2,10 +2,12 @@
 session_start();
 include "../src/db.php";
 
-if ($_SESSION['user_data']['perms']['members'] == "none")
-	header("Location: ../permission_denied.php");
+// makes sure only people who are logged on go past this point
+if (!isset($_SESSION['user'])) header("Location: ..");
 
-if (!isset($_SESSION['user_data'])) header("Location: ..");
+// permission check
+if (hasPerms($conn, "members", "none"))
+	header("Location: ../permission_denied.php");
 ?>
 
 <!DOCTYPE html>
@@ -20,20 +22,6 @@ if (!isset($_SESSION['user_data'])) header("Location: ..");
 		<h2><a href=".">Home</a></h2>
 		<h3><a href="members.php">Members</a></h3>
 
-		<?php
-		if (isset($_GET['user']))
-		{
-			// PAGE FOR EDITING A SPECIFIC MEMBER
-			if ($_SESSION['user_data']['perms']['members'] == "edit")
-			{
-				include "edit_employee.php";
-			} else {
-				header("Location: ../permission_denied.php");
-			}
-		} else {
-			// PAGE FOR VIEWING ALL MEMBERS
-			table2HTML($conn, "SELECT * FROM `view_employee`");
-		}
-		?>
+		<?php table2HTML($conn, "SELECT * FROM `view_employee`");	?>
 	</body>
 </html>

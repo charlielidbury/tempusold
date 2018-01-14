@@ -147,10 +147,10 @@ function row2HTML($conn, $table, $key, $value, $extra="")
 
 	$stmt->close();
 
-	$row_string = "<tr><td>%s</td><td>%s</td></tr>";
+	$row_string = "<tr>\n\t<td>%s</td>\n\t<td>%s</td>\n</tr>\n";
 
 	// ACTUAL PRINTING
-	$final = "<table>";
+	$final = "<table>\n";
 
 	// main data
 	foreach ($result->fetch_fields() as $field)
@@ -209,5 +209,10 @@ function table2HTML($conn, $query, $format, $arg)
 	$stmt->close();
 }
 
+function hasPerms($conn, $perm, $level)
+{
+	$role = getCell($conn, "role", "employee", "name", $_SESSION['user']);
+	return getCell($conn, $perm, "role", "role", $role) == $level;
+}
 
 ?>
