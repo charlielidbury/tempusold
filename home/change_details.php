@@ -20,6 +20,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') // update has been pressed
 {
 	$errors = [];
 
+	// CHECK: NAME HAS NON WHITESPACES
+	if (0 === preg_match("/\S+/", $_POST['username']))
+	$errors[] = "Must enter a username.";
+
 	// CHECK: NAME DOESN'T CONTAIN SPACES
 	if (0 !== preg_match('/\s/', $_POST['name']))
 		$errors[] = "Username cannot contain spaces";
