@@ -32,7 +32,7 @@ if (!isset($_SESSION['user_data'])) header("Location: ..");
 			}
 		} else {
 			// PAGE FOR VIEWING ALL MEMBERS
-			query2Table($conn, "SELECT * FROM `view_employee`");
+			table2HTML($conn, "SELECT * FROM `view_employee`");
 		}
 		?>
 	</body>
