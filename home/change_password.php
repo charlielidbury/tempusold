@@ -1,49 +1,48 @@
 <?php
 session_start();
 
+// makes sure only logged in users get here
+if (!isset($_SESSION['user_data'])) header("Location: ..");
+
 include "../src/db.php";
 
 if (isset($_GET['user']))
 {
+	// if custom user the logged in user must have perms to edit member's details
 	$user = $_GET['user'];
-	$hash = getCell($conn, "hash", "employee", "name", $user);
+	if ($_SESSION['user_data']['perms']['members'] != "edit") header("Location: ../permission_denied.php");
 } else {
+	// otherwise just use the logged in user
 	$user = $_SESSION['user_data']['name'];
-	$hash = $_SESSION['user_data']['hash'];
 }
+
+$hash = $_SESSION['user_data']['hash'];
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') // login has been pressed
 {
 	// initial data validation
 	$errors = array();
 
-	if (password_verify($_POST['old'], $hash))
+	// password correct
+	if ($_POST['new'] === $_POST['verify'])
 	{
-		// password correct
-		if ($_POST['new'] === $_POST['verify'])
-		{
-			// passwords are the same (no typos!)
-			// update the database
+		// passwords are the same (no typos!)
+		// update the database
 
-			$new_hash = password_hash($_POST['new'], PASSWORD_DEFAULT);
+		$new_hash = password_hash($_POST['new'], PASSWORD_DEFAULT);
 
-			$stmt = $conn->prepare("UPDATE `employee` SET `hash` = ? WHERE `name` = ?");
-			if (!$stmt) die ("Statement failed to prepare: " . $mysqli->error);
+		$stmt = $conn->prepare("UPDATE `employee` SET `hash` = ? WHERE `name` = ?");
+		if (!$stmt) die ("Statement failed to prepare: " . $mysqli->error);
 
-			$stmt->bind_param("ss", $new_hash, $user);
-			$stmt->execute();
+		$stmt->bind_param("ss", $new_hash, $user);
+		$stmt->execute();
 
-			header("Location: .");
+		header("Location: .");
 
-		} else {
-			// passwords are not the same
-			$errors[] = "Passwords must match";
-		}
 	} else {
-		// password incorrect
-		$errors[] = "Incorrect Password";
+		// passwords are not the same
+		$errors[] = "Passwords must match";
 	}
-
 }
 ?>
 <!DOCTYPE html>
@@ -65,10 +64,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') // login has been pressed
 
 		<form action="change_password.php<?php if (isset($_GET['user'])) echo '?user=' . $_GET['user']; ?>" method="POST">
 			<table>
-				<tr>
-					<td>Old Password:</td>
-					<td><input type="password" name="old" /> <br/></td>
-				</tr>
 				<tr>
 					<td>New Password:</td>
 					<td><input type="password" name="new" /> <br/></td>

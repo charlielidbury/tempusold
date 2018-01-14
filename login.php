@@ -62,9 +62,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') // login has been pressed
 		?> </ul>
 
 		<form action="." method="POST">
-			Username: <input type="text" name="username" /> <br/>
-			Password: <input type="password" name="password" /> <br/>
-
+			<table>
+				<tr>
+					<td>Username:</td>
+					<td><input type="text" name="username" /> <br/></td>
+				</tr>
+				<tr>
+					<td>Password:</td>
+					<td><input type="password" name="password" /> <br/></td>
+				</tr>
+			</table>
 			<input type="submit" value="Login" name="submit" />
 		</form>
 	</body>
