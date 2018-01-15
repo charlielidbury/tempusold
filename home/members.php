@@ -22,6 +22,8 @@ if (hasPerms($conn, "members", "none"))
 		<h2><a href=".">Home</a></h2>
 		<h3><a href="members.php">Members</a></h3>
 
+		<a href="create_user.php">Create new user</a>
+
 		<?php table2HTML($conn, "SELECT * FROM `view_employee`");	?>
 	</body>
 </html>
