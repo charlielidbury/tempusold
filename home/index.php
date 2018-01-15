@@ -20,7 +20,7 @@ include "{$_SERVER['DOCUMENT_ROOT']}/src/db.php";
 		<h3>Logged in as <?= $_SESSION["user"]; ?></h3>
 		<ul>
 			<li><a href="/home/team/view_user.php?user=<?= $_SESSION['user']; ?>">Profile</a></li>
-			<?php if (hasPerms($conn, "members", "edit")): ?>
+			<?php if (hasPerms($conn, "members", 2)): ?>
 			<li><a href="/home/team">Team</a></li>
 			<?php endif ?>
 			<li><a href="/home/sessions.php">Sessions</a></li>
