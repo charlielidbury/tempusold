@@ -13,9 +13,9 @@ if (!isset($_SESSION['user'])) header("Location: ..");
 		<link rel="stylesheet" href="/css/style.css">
 	</head>
 	<body>
-		<h1><a href="index.php"   >Tempus</a></h1>
-		<h2><a href="."           >Home</a></h2>
-		<h3><a href="sessions.php">Sessions</a></h3>
+		<h1><a href="/">Tempus</a></h1>
+		<h2><a href="/home/">Home</a></h2>
+		<h3><a href="/home/sessions.php">Sessions</a></h3>
 		<?php table2HTML($conn, "CALL userSessions(?)", "s", $_SESSION['user']); ?>
 	</body>
 </html>

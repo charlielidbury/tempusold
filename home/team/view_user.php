@@ -25,7 +25,7 @@ if ( (!hasPerms($conn, "members", 1)) && $_SESSION['user'] != $_GET['user'])
 		<h1><a href="/">Tempus</a></h1>
 		<h2><a href="/home">Home</a></h2>
 		<h3><a href="/home/team">Team</a></h3>
-		<h3><a href="/home/members/view_user.php?user=<?= $_GET['user']; ?>">View User</a></h3>
+		<h3><a href="/home/team/view_user.php?user=<?= $_GET['user']; ?>">View User</a></h3>
 		<p>Profile details:</p>
 		<?php
 		// adds permissions to the table
