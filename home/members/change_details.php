@@ -2,14 +2,14 @@
 session_start();
 
 // makes sure only logged in users get here
-if (!isset($_SESSION['user'])) header("Location: ..");
+if (!isset($_SESSION['user'])) header("Location: {$_SERVER['DOCUMENT_ROOT']}");
 
-include "../src/db.php";
+include "{$_SERVER['DOCUMENT_ROOT']}/src/db.php";
 
 // if custom user the logged in user must have perms to edit member's details
 $user = $_GET['user'];
 if (!hasPerms($conn, "members", "edit") && $_SESSION['user'] != $_GET['user'])
-	header("Location: ../permission_denied.php");
+	header("Location: {$_SERVER['DOCUMENT_ROOT']}/permission_denied.php");
 
 // restricts the field if user is just editing their own
 $restricted = !hasPerms($conn, "members", "edit") && $_SESSION['user'] == $_GET['user'];
@@ -72,19 +72,19 @@ $user_data = getRow($conn, "employee", "name", $_GET['user']);
 		<link rel="stylesheet" href="/css/style.css"/>
 	</head>
 	<body>
-		<h1><a href="..">Tempus</a></h1>
-		<h2><a href=".">Home</a></h2>
+		<h1><a href="/">Tempus</a></h1>
+		<h2><a href="/home">Home</a></h2>
 		<?php if(!hasPerms($conn, "Members", "none")): ?>
-		<h3><a href="members.php">Members</a></h3>
+		<h3><a href="/home/members">Members</a></h3>
 		<?php endif ?>
-		<h3><a href="change_details.php">Edit Details</a></h3>
+		<h3><a href="/home/members/change_details.php">Edit Details</a></h3>
 		<p>Edit Profile Details:</p>
 
 		<ul> <?php
 			foreach ($errors as $error) printf("<li>%s</li>\n", $error);
 		?>	</ul>
 
-		<form action="change_details.php?user=<?= $user_data['name']; ?>" method="POST">
+		<form action="<?= "change_details.php?user={$user_data['name']}&redirect={$_GET['redirect']}" ?>" method="POST">
 			<table>
 				<tr>
 					<th>Aspect</th>
@@ -136,5 +136,10 @@ $user_data = getRow($conn, "employee", "name", $_GET['user']);
 			</table>
 			<input type="submit" value="Update" name="submit" />
 		</form>
+		<?php if (!$restricted): ?>
+			<a href="<?= "delete_user.php?user={$user_data['name']}&redirect={$_GET['redirect']}" ?>">
+				Delete User
+			</a>
+		<?php endif; ?>
 	</body>
 </html>

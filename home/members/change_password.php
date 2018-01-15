@@ -1,16 +1,16 @@
 <?php
 session_start();
 
-include "../src/db.php";
+include "{$_SERVER['DOCUMENT_ROOT']}/src/db.php";
 
 // makes sure only logged in users get here
-if (!isset($_SESSION['user'])) header("Location: ..");
+if (!isset($_SESSION['user'])) header("Location: {$_SERVER['DOCUMENT_ROOT']}");
 
 if (isset($_GET['user']))
 {
 	// if custom user the logged in user must have perms to edit member's details
 	$user = $_GET['user'];
-	if (!hasPerms($conn, "members", "edit") && $_SESSION['user'] != $_GET['user']) header("Location: ../permission_denied.php");
+	if (!hasPerms($conn, "members", "edit") && $_SESSION['user'] != $_GET['user']) header("Location: {$_SERVER['DOCUMENT_ROOT']}/permission_denied.php");
 } else {
 	// otherwise just use the logged in user
 	$user = $_SESSION['user'];

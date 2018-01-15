@@ -1,9 +1,9 @@
 <?php
 session_start();
-include "../src/db.php";
+include "{$_SERVER['DOCUMENT_ROOT']}/src/db.php";
 
 // makes sure only logged on users past this point
-if (!isset($_SESSION['user'])) header("Location: ..");
+if (!isset($_SESSION['user'])) header("Location: {$_SERVER['HTTP_HOST']}");
 ?>
 <!DOCTYPE html>
 <html>
@@ -14,9 +14,9 @@ if (!isset($_SESSION['user'])) header("Location: ..");
 	</head>
 	<body>
 		<pre><?php //die(var_export($_SESSION['user_data'], true)) ?></pre>
-		<h1><a href="..">Tempus</a></h1>
-		<h2><a href=".">Home</a></h2>
-		<h3><a href="profile.php">Profile</a></h3>
+		<h1><a href="/">Tempus</a></h1>
+		<h2><a href="/home">Home</a></h2>
+		<h3><a href="/home/members/profile.php">Profile</a></h3>
 		<p>Profile details:</p>
 		<?php
 		// adds permissions to the table

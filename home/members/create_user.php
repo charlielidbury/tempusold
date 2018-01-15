@@ -2,13 +2,13 @@
 session_start();
 
 // makes sure only logged in users get here
-if (!isset($_SESSION['user'])) header("Location: ..");
+if (!isset($_SESSION['user'])) header("Location: {$_SERVER['DOCUMENT_ROOT']}");
 
-include "../src/db.php";
+include "{$_SERVER['DOCUMENT_ROOT']}/src/db.php";
 
 // if custom user the logged in user must have perms to edit member's details
 if (!hasPerms($conn, "members", "edit"))
-	header("Location: ../permission_denied.php");
+	header("Location: {$_SERVER['DOCUMENT_ROOT']}/permission_denied.php");
 
 // ----- SAFE AREA -----
 
@@ -73,10 +73,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') // update has been pressed
 		<link rel="stylesheet" href="/css/style.css"/>
 	</head>
 	<body>
-		<h1><a href="..">Tempus</a></h1>
-		<h2><a href=".">Home</a></h2>
-		<h3><a href="members.php">Members</a></h3>
-		<h3><a href="change_details.php">Create User</a></h3>
+		<h1><a href="/">Tempus</a></h1>
+		<h2><a href="/home">Home</a></h2>
+		<h3><a href="/home/members">Members</a></h3>
+		<h3><a href="/home/members/change_details.php">Create User</a></h3>
 
 		<ul> <?php
 			foreach ($errors as $error) printf("<li>%s</li>\n", $error);
@@ -84,7 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') // update has been pressed
 
 		<p id="required">Required Fields</p>
 
-		<form action="create_user.php" method="POST">
+		<form action="create_user.php?redirect=<?= $_GET['redirect']; ?>" method="POST">
 			<table>
 				<tr>
 					<td id="required">Name</td>
@@ -124,7 +124,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') // update has been pressed
 					</td>
 				</tr>
 			</table>
-			<input type="submit" value="Update" name="submit" />
+			<input type="submit" value="Create User" name="submit" />
 		</form>
 	</body>
 </html>
