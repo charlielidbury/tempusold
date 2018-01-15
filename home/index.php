@@ -23,8 +23,9 @@ include "{$_SERVER['DOCUMENT_ROOT']}/src/db.php";
 			<?php if (hasPerms($conn, "members", 2)): ?>
 			<li><a href="/home/team">Team</a></li>
 			<?php endif ?>
-			<li><a href="/home/sessions.php">Sessions</a></li>
-			<li><a href="/home/payments.php">Payments</a></li>
+			<li><a href="/home/my_sessions.php">My Sessions</a></li>
+			<li><a href="/home/sessions/">Sessions</a></li>
+			<li><a href="/home/payments/">Payments</a></li>
 			<li><a href="/src/logout.php">Logout</a></li>
 		</ul>
 	</body>
