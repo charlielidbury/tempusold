@@ -213,7 +213,7 @@ function table2HTML($conn, $query, $format, $arg)
 
 	$stmt = $conn->prepare($query);
 
-	if (!$stmt) die ("Statement failed to prepare: " . $mysqli->error);
+	if (!$stmt) die ("Statement failed to prepare: " . $conn->error);
 
 	// execute query
 	if ($format) $stmt->bind_param($format, $arg);
@@ -282,7 +282,7 @@ function updateRow($conn, $table, $key, $value, $changes)
 
 	// prepares statement
 	$stmt = $conn->prepare($query);
-	if (!$stmt) die ("Statement failed to prepare: " . $mysqli->error);
+	if (!$stmt) die ("Statement failed to prepare: " . $conn->error);
 
 	// makes the format string
 	$conversion = array(
@@ -324,6 +324,36 @@ function insertRow($conn, $table, $row)
 
 	// execute!
 	$conn->query($query);
+}
+
+function deleteRow($conn, $table, $key, $value)
+{
+	/*
+	DELETES SPEICIFED ROW FROM TABLE
+
+	$conn <= connection object
+	$table <= table the row is in
+	$key <= key used to identify that row (WHERE ? = "Charlie")
+	$value <= value the key should be at row (WHERE `name` = ?)
+	*/
+
+	$query = "DELETE FROM `$table` WHERE `$key` = ?";
+
+	// prepares statement
+	$stmt = $conn->prepare($query);
+	if (!$stmt) die ("Statement failed to prepare: " . $conn->error);
+
+	// makes the format string
+	$conversion = array(
+		"integer" => "i",
+		"double"  => "d",
+		"string"  => "s"
+	);
+	$format = $conversion[gettype($value)];
+
+	// execute query
+	$stmt->bind_param($format, $value);
+	$stmt->execute();
 }
 
 ?>
