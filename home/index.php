@@ -19,9 +19,9 @@ include "{$_SERVER['DOCUMENT_ROOT']}/src/db.php";
 		<h2><a href="/home/">Home</a></h2>
 		<h3>Logged in as <?= $_SESSION["user"]; ?></h3>
 		<ul>
-			<li><a href="/home/members/profile.php">Profile</a></li>
+			<li><a href="/home/team/view_user.php?user=<?= $_SESSION['user']; ?>">Profile</a></li>
 			<?php if (hasPerms($conn, "members", "edit")): ?>
-			<li><a href="/home/members">Members</a></li>
+			<li><a href="/home/team">Team</a></li>
 			<?php endif ?>
 			<li><a href="/home/sessions.php">Sessions</a></li>
 			<li><a href="/home/payments.php">Payments</a></li>

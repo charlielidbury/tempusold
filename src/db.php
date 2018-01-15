@@ -249,11 +249,12 @@ function hasPerms($conn, $perm, $level)
 	CHECKS IF USER HAS PERMISSIONS
 
 	$perm <= name for permission ("members", "sessions", ... )
-	$level <= level of perm ("none", "view", ... )
+	$level <= level of perm (0, 1, 2) (for none, view & edit respectively)
 	*/
 
-	$role = getCell($conn, "role", "employee", "name", $_SESSION['user']);
-	return getCell($conn, $perm, "role", "role", $role) == $level;
+	$users_role = getCell($conn, "role", "employee", "name", $_SESSION['user']);
+
+	return getCell($conn, $perm, "role", "role", $users_role) >= $level;
 }
 
 function updateRow($conn, $table, $key, $value, $changes)
