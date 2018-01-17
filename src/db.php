@@ -135,8 +135,37 @@ function getColumn($conn, $table, $field)
 
 }
 
-function getTable()
+function getTable($conn, $query, $format="", $arg)
 {
+	/*
+	RETURNS RESULT OF QUERY
+
+	$conn <= connection object
+	$query <= query with ?'s as variable names ("SELECT * FROM `employee` WHERE `name` = ?")
+	$format <= data type of $arg (s=string, i=int, d=double, b=blob)
+	$arg <= arg to be passed to the query in place of ?
+	*/
+
+	$stmt = $conn->prepare($query);
+
+	if (!$stmt) die ("Statement failed to prepare: " . $conn->error);
+
+	// execute query
+	if ($format) $stmt->bind_param($format, $arg);
+	$stmt->execute();
+
+	// get result
+	$result = $stmt->get_result();
+
+	$final = array();
+
+	// prints body
+	while ($row = $result->fetch_assoc())
+		$final[] = $row;
+
+	$stmt->close();
+
+	return $final;
 
 }
 
