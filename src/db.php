@@ -144,6 +144,8 @@ function getTable($conn, $query, $format="", $arg)
 	$query <= query with ?'s as variable names ("SELECT * FROM `employee` WHERE `name` = ?")
 	$format <= data type of $arg (s=string, i=int, d=double, b=blob)
 	$arg <= arg to be passed to the query in place of ?
+
+	returns  => 2D array with table result in
 	*/
 
 	$stmt = $conn->prepare($query);
@@ -286,7 +288,7 @@ function hasPerms($conn, $perm, $level)
 	return getCell($conn, $perm, "role", "role", $users_role) >= $level;
 }
 
-function updateRow($conn, $table, $key, $value, $changes)
+function updateRow($conn, $table, $conditions, $changes)
 {
 	/*
 	MAKES A LIST OF CHANGES TO A ROW IN A TABLE
@@ -294,21 +296,16 @@ function updateRow($conn, $table, $key, $value, $changes)
 
 	$conn <= connection object
 	$table <= table the row is in
-	$key <= key used to identify that row (WHERE ? = "Charlie")
-	$value <= value the key should be at row (WHERE `name` = ?)
+	$conditions <= array where the key is the column and the value is the value it should be (WHERE $key = $value)
 	$changes <= accociative array where the key is the field and the value is the new value
 		~ i.e: array( 'name' => "CharlieLidbury" ) changes the name to Charlie of selected rows
 	*/
 
 	// creates query
-	$query = "UPDATE `$table` SET\n "; // "UPDATE `employee` SET "
-	foreach ($changes as $field => $new)
-		if ($new == "")
-			$query .= "\t`$field` = NULL,\n"; // "`email` = NULL, "
-		else
-			$query .= "\t`$field` = '$new',\n"; // "`email` = 'charlie.lidbury@icloud.com', "
-	$query = substr($query, 0, -2); // removes trailing comma and newline
-	$query .= "\nWHERE `$key` = ?\n"; // "WHERE `name` = 'Charlie'"
+	$changes_str = implode(array_keys($changes), "` = ? , `"); // puts $changes into an SQL statement
+	$conditions_str = implode(array_keys($conditions), "` = ? AND `"); // puts $conditions into a SQL statement
+	$qformat = "UPDATE `%s` SET `%s` = ? WHERE `%s` = ? "; // string to format the SQL statement
+	$query = sprintf($qformat, $table, $changes_str, $conditions_str); // brings together the statement
 
 	// prepares statement
 	$stmt = $conn->prepare($query);
@@ -320,11 +317,25 @@ function updateRow($conn, $table, $key, $value, $changes)
 		"double"  => "d",
 		"string"  => "s"
 	);
-	$format = $conversion[gettype($value)];
+	$format = "";
+	foreach ($conditions as $value) // adds the conditions to the format string
+		$format .= $conversion[gettype($value)];
+	foreach ($changes as $value) // adds the changes to the format string
+		$format .= $conversion[gettype($value)];
 
+	$con_vals = array_values($conditions);
+	$cha_vals = array_values($changes);
+	/*
+	var_dump($query);
+	var_dump($format);
+	var_dump(...$con_vals);
+	var_dump(...$cha_vals);
+	*/
 	// execute query
-	$stmt->bind_param($format, $value);
+	$stmt->bind_param($format, ...$cha_vals, ...$con_vals);
 	$stmt->execute();
+
+	$stmt->close();
 }
 
 function insertRow($conn, $table, $row)
@@ -356,7 +367,7 @@ function insertRow($conn, $table, $row)
 	$conn->query($query);
 }
 
-function deleteRow($conn, $table, $key, $value)
+function deleteRow($conn, $table, $conditions)
 {
 	/*
 	DELETES SPEICIFED ROW FROM TABLE
@@ -367,7 +378,10 @@ function deleteRow($conn, $table, $key, $value)
 	$value <= value the key should be at row (WHERE `name` = ?)
 	*/
 
-	$query = "DELETE FROM `$table` WHERE `$key` = ?";
+	// creates query
+	$conditions_str = implode(array_keys($conditions), "` = ? AND `"); // puts $conditions into a SQL statement
+	$qformat = "DELETE FROM `%s` WHERE `%s` = ? "; // string to format the SQL statement
+	$query = sprintf($qformat, $table, $conditions_str); // brings together the statement
 
 	// prepares statement
 	$stmt = $conn->prepare($query);
@@ -379,10 +393,14 @@ function deleteRow($conn, $table, $key, $value)
 		"double"  => "d",
 		"string"  => "s"
 	);
-	$format = $conversion[gettype($value)];
+	$format = "";
+	foreach ($conditions as $value) // adds the conditions to the format string
+		$format .= $conversion[gettype($value)];
+
+	$con_vals = array_values($conditions);
 
 	// execute query
-	$stmt->bind_param($format, $value);
+	$stmt->bind_param($format, ...$con_vals);
 	$stmt->execute();
 }
 

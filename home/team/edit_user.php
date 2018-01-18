@@ -12,7 +12,7 @@ if (!hasPerms($conn, "members", 2))
 	header("Location: http://{$_SERVER['HTTP_HOST']}/permission_denied.php");
 
 // restricts the field if user is just editing their own
-$restricted = !hasPerms($conn, "members", "edit") && $_SESSION['user'] == $_GET['user'];
+$restricted = !hasPerms($conn, "members", 3) && $_SESSION['user'] == $_GET['user'];
 
 // ----- SAFE AREA -----
 
@@ -84,7 +84,7 @@ $user_data = getRow($conn, "employee", "name", $_GET['user']);
 			foreach ($errors as $error) printf("<li>%s</li>\n", $error);
 		?>	</ul>
 
-		<form action="<?= "change_details.php?user={$user_data['name']}&redirect={$_GET['redirect']}" ?>" method="POST">
+		<form action="<?= "edit_user.php?user={$user_data['name']}&redirect={$_GET['redirect']}" ?>" method="POST">
 			<table>
 				<tr>
 					<th>Aspect</th>

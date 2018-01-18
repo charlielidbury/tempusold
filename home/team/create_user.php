@@ -57,7 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') // update has been pressed
 		unset($row['submit']);
 
 		$row['hash'] = password_hash($_POST['password'], PASSWORD_DEFAULT);
-
+		
 		insertRow($conn, "employee", $row);
 
 		header("Location: {$_GET['redirect']}");
