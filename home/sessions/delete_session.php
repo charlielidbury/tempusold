@@ -10,12 +10,12 @@ include "{$_SERVER['DOCUMENT_ROOT']}/src/db.php";
 
 // if custom user the logged in user must have perms to edit member's details
 $user = $_GET['user'];
-if (!hasPerms($conn, "sessions", 2))
+if (!hasPerms("sessions", 2))
 	header("Location: {$_SERVER['HTTP_HOST']}/permission_denied.php");
 
 // ACTUALLY DELETES THE ROW
 if (isset($_GET['session']))
-	deleteRow($conn, "session", ["date" => $_GET['session']]);
+	deleteRow("session", ["date" => $_GET['session']]);
 
 // redirect back
 if (isset($_GET['redirect']))

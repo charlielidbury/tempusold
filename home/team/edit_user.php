@@ -8,11 +8,11 @@ include "{$_SERVER['DOCUMENT_ROOT']}/src/db.php";
 
 // if custom user the logged in user must have perms to edit member's details
 $user = $_GET['user'];
-if (!hasPerms($conn, "members", 2))
+if (!hasPerms("team", 2))
 	header("Location: http://{$_SERVER['HTTP_HOST']}/permission_denied.php");
 
 // restricts the field if user is just editing their own
-$restricted = !hasPerms($conn, "members", 3) && $_SESSION['user'] == $_GET['user'];
+$restricted = !hasPerms("team", 3) && $_SESSION['user'] == $_GET['user'];
 
 // ----- SAFE AREA -----
 
@@ -58,11 +58,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') // update has been pressed
 				"role" => $_POST['role']
 			);
 
-		updateRow($conn, "employee", "name", $_POST['name'], $changes);
+		updateRow("employee", "name", $_POST['name'], $changes);
 	}
 }
 
-$user_data = getRow($conn, "employee", "name", $_GET['user']);
+$user_data = getRow("employee", "name", $_GET['user']);
 ?>
 <!DOCTYPE html>
 <html>
@@ -74,10 +74,10 @@ $user_data = getRow($conn, "employee", "name", $_GET['user']);
 	<body>
 		<h1><a href="/">Tempus</a></h1>
 		<h2><a href="/home">Home</a></h2>
-		<?php if(hasPerms($conn, "Members", 1)): ?>
-		<h3><a href="/home/members">Team</a></h3>
+		<?php if(hasPerms("team", 1)): ?>
+		<h3><a href="/home/team">Team</a></h3>
 		<?php endif ?>
-		<h3><a href="/home/members/change_details.php">Edit User</a></h3>
+		<h3><a href="/home/team/change_details.php">Edit User</a></h3>
 		<p>Edit Profile Details:</p>
 
 		<ul> <?php
@@ -124,7 +124,7 @@ $user_data = getRow($conn, "employee", "name", $_GET['user']);
 						<td>Role</td>
 						<td>
 							<select name="role" multiple> <?php
-							foreach (getColumn($conn, "role", "role") as $cell)
+							foreach (getColumn("role", "role") as $cell)
 								if ($cell == $user_data['role'])
 									printf("<option selected='selected' value='%s'>%s</option>\n", $cell, $cell);
 								else

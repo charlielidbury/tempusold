@@ -7,7 +7,7 @@ if (!isset($_SESSION['user']))
 	header("Location: http://{$_SERVER['HTTP_HOST']}");
 
 // makes sure only users with view session perms past this point
-if (!hasPerms($conn, "sessions", 1))
+if (!hasPerms("sessions", 1))
 	header("Location: http://{$_SERVER['HTTP_HOST']}/permission_denied.php")
 
 ?>
@@ -27,6 +27,6 @@ if (!hasPerms($conn, "sessions", 1))
 			<li><a href="create_session.php?redirect=index.php">Create Session</a></li>
 		</ul>
 
-		<?php table2HTML($conn, "SELECT * FROM `view_session`"); ?>
+		<?php table2HTML("SELECT * FROM `view_session`"); ?>
 	</body>
 </html>

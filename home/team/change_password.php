@@ -4,16 +4,16 @@ session_start();
 include "{$_SERVER['DOCUMENT_ROOT']}/src/db.php";
 
 // makes sure only logged in users get here
-if (!isset($_SESSION['user'])) header("Location: {$_SERVER['DOCUMENT_ROOT']}");
+if (!isset($_SESSION['user'])) header("Location: {$_SERVER['HTTP_HOST']}");
 
 if (isset($_GET['user']))
-{
 	// if custom user the logged in user must have perms to edit member's details
 	$user = $_GET['user'];
-	if (!hasPerms($conn, "members", "edit") && $_SESSION['user'] != $_GET['user']) header("Location: {$_SERVER['DOCUMENT_ROOT']}/permission_denied.php");
-} else {
-	// otherwise just use the logged in user
-	$user = $_SESSION['user'];
+
+if ((!hasPerms("team", 2)) && $user != $_SESSION['user'])
+{
+	die("test");
+	header("Location: http://{$_SERVER['HTTP_HOST']}/permission_denied.php");
 }
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') // login has been pressed
@@ -27,15 +27,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') // login has been pressed
 	// ACTUAL PASSWORD CHANGE
 	if (!count($errors))
 	{
-		$new_hash = password_hash($_POST['new'], PASSWORD_DEFAULT);
+		updateRow("employee", ["name" => $user], [
+			"hash" => password_hash($_POST['new'], PASSWORD_DEFAULT)
+		]);
 
-		$stmt = $conn->prepare("UPDATE `employee` SET `hash` = ? WHERE `name` = ?");
-		if (!$stmt) die ("Statement failed to prepare: " . $mysqli->error);
-
-		$stmt->bind_param("ss", $new_hash, $user);
-		$stmt->execute();
-
-		header("Location: .");
+		header("Location: {$_GET['redirect']}");
 	}
 }
 ?>
@@ -57,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') // login has been pressed
 			foreach ($errors as $error) echo "<li>$error</li>";
 		?> </ul>
 
-		<form action="change_password.php<?php if (isset($_GET['user'])) echo '?user=' . $_GET['user']; ?>" method="POST">
+		<form action="<?= "http://{$_SERVER["HTTP_HOST"]}{$_SERVER["REQUEST_URI"]}" ?>" method="POST">
 			<table>
 				<tr>
 					<td>New Password:</td>

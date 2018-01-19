@@ -7,7 +7,7 @@ if (!isset($_SESSION['user'])) header("Location: http://{$_SERVER['HTTP_HOST']}"
 include  "{$_SERVER['DOCUMENT_ROOT']}/src/db.php";
 
 // permission check
-if (!hasPerms($conn, "members", 1))
+if (!hasPerms("team", 1))
 	header("Location: http://{$_SERVER['HTTP_HOST']}/permission_denied.php");
 
 ?>
@@ -16,7 +16,7 @@ if (!hasPerms($conn, "members", 1))
 <html>
 	<head>
 		<meta charset="utf-8">
-		<title>Tempus - Members</title>
+		<title>Tempus - Team</title>
 		<link rel="stylesheet" href="/css/style.css"/>
 	</head>
 	<body>
@@ -28,6 +28,6 @@ if (!hasPerms($conn, "members", 1))
 			<li><a href="create_user.php?redirect=index.php">Create new user</a></li>
 		</ul>
 
-		<?php table2HTML($conn, "SELECT * FROM `view_employee`");	?>
+		<?php table2HTML("SELECT * FROM `view_employee`");	?>
 	</body>
 </html>

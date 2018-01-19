@@ -8,11 +8,11 @@ include "{$_SERVER['DOCUMENT_ROOT']}/src/db.php";
 
 // if custom user the logged in user must have perms to edit session's details
 $user = $_GET['user'];
-if (!hasPerms($conn, "sessions", 2))
+if (!hasPerms("sessions", 2))
 	header("Location: http://{$_SERVER['HTTP_HOST']}/permission_denied.php");
 
-$session_data = getRow($conn, "session", "date", $_GET['session']);
-$shift_data = getTable($conn, "SELECT * FROM `shift` WHERE `date` = ?", "s", $_GET['session']);
+$session_data = getRow("session", "date", $_GET['session']);
+$shift_data = getTable("SELECT * FROM `shift` WHERE `date` = ?", "s", $_GET['session']);
 $session_employees = array_column($shift_data, "employee");
 
 // ----- SAFE AREA -----
@@ -21,7 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') // update has been pressed
 	if ($_POST['submit'] == "Update") // UPDATE DETAILS
 	{
 		// update session info
-		updateRow($conn, "session", ["date" => $_GET['session']], [
+		updateRow("session", ["date" => $_GET['session']], [
 			"date" => $_POST['date'],
 			"start" => $_POST['start'],
 			"end" => $_POST['end']
@@ -31,13 +31,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') // update has been pressed
 		foreach ($session_employees as $employee)
 			if ($_POST[$employee . "remove"] == "on")
 				// removes user from session
-				deleteRow($conn, "shift", [
+				deleteRow("shift", [
 					"employee" => $employee,
 					"date" => $_GET['session']
 				]);
 			else
 				// updates user info
-				updateRow($conn, "shift", [
+				updateRow("shift", [
 					"employee" => $employee,
 					"date" => $_GET['session']
 				], [
@@ -46,17 +46,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') // update has been pressed
 				]);
 
 		// refreshes session data
-		$session_data = getRow($conn, "session", "date", $_GET['session']);
-		$shift_data = getTable($conn, "SELECT * FROM `shift` WHERE `date` = ?", "s", $_GET['session']);
+		$session_data = getRow("session", "date", $_GET['session']);
+		$shift_data = getTable("SELECT * FROM `shift` WHERE `date` = ?", "s", $_GET['session']);
 
 	} elseif ($_POST['submit'] == "Add") // ADD WORKERS
 	{
 		unset($_POST['submit']);
 		foreach ($_POST as $employee)
-			insertRow($conn, "shift", ["date" => $_GET['session'], "employee" => $employee]);
+			insertRow("shift", ["date" => $_GET['session'], "employee" => $employee]);
 
 		// updates shift data
-		$shift_data = getTable($conn, "SELECT * FROM `shift` WHERE `date` = ?", "s", $_GET['session']);
+		$shift_data = getTable("SELECT * FROM `shift` WHERE `date` = ?", "s", $_GET['session']);
 	}
 }
 
@@ -124,9 +124,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') // update has been pressed
 		</form>
 		<!-- Add extra workers -->
 		<p>Add Extra Workers:</p>
-		<form action="<?= "http://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]" ?>" method="POST">
+		<form action="<?= "http://{$_SERVER["HTTP_HOST"]}{$_SERVER["REQUEST_URI"]}" ?>" method="POST">
 			<?php
-			foreach(getColumn($conn, "employee", "name") as $employee)
+			foreach(getColumn("employee", "name") as $employee)
 				if (!in_array($employee, $session_employees))
 					printf('<input type="checkbox" name="%1$s" value="%1$s">%1$s<br>', $employee);
 			?>

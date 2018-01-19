@@ -1,23 +1,25 @@
 <?php
-include("conf.php");
-
-// Make connection
-$conn = new mysqli($host, $user, $pass, $name);
-$conn->set_charset("utf-8");
-
-// Check connection
-if ($conn->connect_error)
+if (!isset($_SESSION['dbconn']))
 {
-	die ("Connection failed: " . $conn->connect_error);
+	include("conf.php");
+
+	// Make connection
+	$conn = new mysqli($host, $user, $pass, $name);
+	$conn->set_charset("utf-8");
+
+	// Check connection
+	if ($conn->connect_error)
+		die ("Connection failed: " . $conn->connect_error);
+
+	$_SESSION['dbconn'] = $conn;
 }
 
-function getCell($conn, $column, $table, $key, $value)
+function getCell($column, $table, $key, $value)
 {
 	/*
 	GETS A CELL FROM A table
 	WARNING: ONLY THE $value IS SAFE, DO NOT USE USER INPUT FOR ANY OTHER ARGUMENT
 
-	$conn <= connection object
 	$table <= name of table data is to be extracted from
 	$column <= which field the data is stored in
 	$key <= field for data to be recognised with (WHERE $key = "Charlie")
@@ -26,9 +28,9 @@ function getCell($conn, $column, $table, $key, $value)
 	returns => the single value from the table
 	*/
 
-	$stmt = $conn->prepare("SELECT `$column` FROM `$table` WHERE `$key` = ?");
+	$stmt = $_SESSION['dbconn']->prepare("SELECT `$column` FROM `$table` WHERE `$key` = ?");
 
-	if (!$stmt) die ("Statement failed to prepare: " . $conn->error);
+	if (!$stmt) die ("Statement failed to prepare: " . $_SESSION['dbconn']->error);
 
 	// makes the format string 'sssi' for instance
 	$conversion = array(
@@ -57,13 +59,12 @@ function getCell($conn, $column, $table, $key, $value)
 
 }
 
-function getRow($conn, $table, $key, $value)
+function getRow($table, $key, $value)
 {
 	/*
 	GETS A ROW FROM A table
 	WARNING: ONLY THE $value IS SAFE, DO NOT USE USER INPUT FOR ANY OTHER ARGUMENT
 
-	$conn <= connection object
 	$table <= name of table data is to be extracted from
 	$key <= field for data to be recognised with (WHERE $key = "Charlie")
 	$value <= value for data to be recognised with (WHERE "name" = $value)
@@ -71,9 +72,9 @@ function getRow($conn, $table, $key, $value)
 	returns => the single row from the table (associative array)
 	*/
 
-	$stmt = $conn->prepare("SELECT * FROM `$table` WHERE `$key` = ?");
+	$stmt = $_SESSION['dbconn']->prepare("SELECT * FROM `$table` WHERE `$key` = ?");
 
-	if (!$stmt) die ("Statement failed to prepare: " . $conn->error);
+	if (!$stmt) die ("Statement failed to prepare: " . $_SESSION['dbconn']->error);
 
 	// makes the format string 'sssi' for instance
 	$conversion = array(
@@ -101,7 +102,7 @@ function getRow($conn, $table, $key, $value)
 
 }
 
-function getColumn($conn, $table, $field)
+function getColumn($table, $field)
 {
 	/*
 	GETS A COLUMN FROM A table
@@ -114,9 +115,9 @@ function getColumn($conn, $table, $field)
 	returns => the single row from the table (associative array)
 	*/
 
-	$stmt = $conn->prepare("SELECT `$field` FROM `$table`");
+	$stmt = $_SESSION['dbconn']->prepare("SELECT `$field` FROM `$table`");
 
-	if (!$stmt) die ("Statement failed to prepare: " . $conn->error);
+	if (!$stmt) die ("Statement failed to prepare: " . $_SESSION['dbconn']->error);
 
 	// execute query
 	$stmt->execute();
@@ -135,12 +136,11 @@ function getColumn($conn, $table, $field)
 
 }
 
-function getTable($conn, $query, $format="", $arg)
+function getTable($query, $format="", $arg)
 {
 	/*
 	RETURNS RESULT OF QUERY
 
-	$conn <= connection object
 	$query <= query with ?'s as variable names ("SELECT * FROM `employee` WHERE `name` = ?")
 	$format <= data type of $arg (s=string, i=int, d=double, b=blob)
 	$arg <= arg to be passed to the query in place of ?
@@ -148,9 +148,9 @@ function getTable($conn, $query, $format="", $arg)
 	returns  => 2D array with table result in
 	*/
 
-	$stmt = $conn->prepare($query);
+	$stmt = $_SESSION['dbconn']->prepare($query);
 
-	if (!$stmt) die ("Statement failed to prepare: " . $conn->error);
+	if (!$stmt) die ("Statement failed to prepare: " . $_SESSION['dbconn']->error);
 
 	// execute query
 	if ($format) $stmt->bind_param($format, $arg);
@@ -171,13 +171,12 @@ function getTable($conn, $query, $format="", $arg)
 
 }
 
-function row2HTML($conn, $table, $key, $value, $extra="")
+function row2HTML($table, $key, $value, $extra="")
 {
 	/*
 	RETURNS HTML REPRESENTATION OF ROW IN TABLE
 	WARNING: ONLY THE $value IS SAFE, DO NOT USE USER INPUT FOR ANY OTHER ARGUMENT
 
-	$conn <= connection object
 	$table <= name of table data is to be extracted from
 	$key <= field for data to be recognised with (WHERE $key = "Charlie")
 	$value <= value for data to be recognised with (WHERE "name" = $value)
@@ -186,9 +185,9 @@ function row2HTML($conn, $table, $key, $value, $extra="")
 	returns => HTML representation of the row
 	*/
 
-	$stmt = $conn->prepare("SELECT * FROM `$table` WHERE `$key` = ?");
+	$stmt = $_SESSION['dbconn']->prepare("SELECT * FROM `$table` WHERE `$key` = ?");
 
-	if (!$stmt) die ("Statement failed to prepare: " . $conn->error);
+	if (!$stmt) die ("Statement failed to prepare: " . $_SESSION['dbconn']->error);
 
 	// makes the format string 'sssi' for instance
 	$conversion = array(
@@ -231,7 +230,7 @@ function row2HTML($conn, $table, $key, $value, $extra="")
 	return $final;
 }
 
-function table2HTML($conn, $query, $format, $arg)
+function table2HTML($query, $format, $arg)
 {
 	/*
 	PRINTS HTML REPRESENTATION OF A QUERY
@@ -242,9 +241,9 @@ function table2HTML($conn, $query, $format, $arg)
 	$arg <= arg to be passed to the query in place of ?
 	*/
 
-	$stmt = $conn->prepare($query);
+	$stmt = $_SESSION['dbconn']->prepare($query);
 
-	if (!$stmt) die ("Statement failed to prepare: " . $conn->error);
+	if (!$stmt) die ("Statement failed to prepare: " . $_SESSION['dbconn']->error);
 
 	// execute query
 	if ($format) $stmt->bind_param($format, $arg);
@@ -274,7 +273,7 @@ function table2HTML($conn, $query, $format, $arg)
 	$stmt->close();
 }
 
-function hasPerms($conn, $perm, $level)
+function hasPerms($perm, $level)
 {
 	/*
 	CHECKS IF USER HAS PERMISSIONS
@@ -283,18 +282,17 @@ function hasPerms($conn, $perm, $level)
 	$level <= level of perm (0, 1, 2) (for none, view & edit respectively)
 	*/
 
-	$users_role = getCell($conn, "role", "employee", "name", $_SESSION['user']);
+	$users_role = getCell("role", "employee", "name", $_SESSION['user']);
 
-	return getCell($conn, $perm, "role", "role", $users_role) >= $level;
+	return getCell($perm, "role", "role", $users_role) >= $level;
 }
 
-function updateRow($conn, $table, $conditions, $changes)
+function updateRow($table, $conditions, $changes)
 {
 	/*
 	MAKES A LIST OF CHANGES TO A ROW IN A TABLE
 	WARNING: DOES NOT WORK WHEN UPDATING CELLS TO NULL VALUE
 
-	$conn <= connection object
 	$table <= table the row is in
 	$conditions <= array where the key is the column and the value is the value it should be (WHERE $key = $value)
 	$changes <= accociative array where the key is the field and the value is the new value
@@ -308,8 +306,8 @@ function updateRow($conn, $table, $conditions, $changes)
 	$query = sprintf($qformat, $table, $changes_str, $conditions_str); // brings together the statement
 
 	// prepares statement
-	$stmt = $conn->prepare($query);
-	if (!$stmt) die ("Statement failed to prepare: " . $conn->error);
+	$stmt = $_SESSION['dbconn']->prepare($query);
+	if (!$stmt) die ("Statement failed to prepare: " . $_SESSION['dbconn']->error);
 
 	// makes the format string
 	$conversion = array(
@@ -338,12 +336,11 @@ function updateRow($conn, $table, $conditions, $changes)
 	$stmt->close();
 }
 
-function insertRow($conn, $table, $row)
+function insertRow($table, $row)
 {
 	/*
 	INSERTS A ROW INTO THE SPECIFIED TABLE
 
-	$conn <= connection object
 	$table <= table to insert into
 	$row <= accociative array where the key is the field and the value is the new value
 		~ i.e: array( 'name' => "CharlieLidbury" ) sets name to CharlieLidbury
@@ -364,15 +361,14 @@ function insertRow($conn, $table, $row)
 	$query = "INSERT INTO `$table` ($fields) VALUES ($values)";
 
 	// execute!
-	$conn->query($query);
+	$_SESSION['dbconn']->query($query);
 }
 
-function deleteRow($conn, $table, $conditions)
+function deleteRow($table, $conditions)
 {
 	/*
 	DELETES SPEICIFED ROW FROM TABLE
 
-	$conn <= connection object
 	$table <= table the row is in
 	$key <= key used to identify that row (WHERE ? = "Charlie")
 	$value <= value the key should be at row (WHERE `name` = ?)
@@ -384,8 +380,8 @@ function deleteRow($conn, $table, $conditions)
 	$query = sprintf($qformat, $table, $conditions_str); // brings together the statement
 
 	// prepares statement
-	$stmt = $conn->prepare($query);
-	if (!$stmt) die ("Statement failed to prepare: " . $conn->error);
+	$stmt = $_SESSION['dbconn']->prepare($query);
+	if (!$stmt) die ("Statement failed to prepare: " . $_SESSION['dbconn']->error);
 
 	// makes the format string
 	$conversion = array(

@@ -18,6 +18,6 @@ if (!isset($_SESSION['user'])) header("Location: {$_SERVER['HTTP_HOST']}");
 		<h3><a href="/home/payments/">Payments</a></h3>
 
 
-		<?php table2HTML($conn, "CALL userPayments(?)", "s", $_SESSION['user']); ?>
+		<?php table2HTML("CALL userPayments(?)", "s", $_SESSION['user']); ?>
 	</body>
 </html>

@@ -8,7 +8,7 @@ if (!isset($_SESSION['user']))
 	header("Location: http://{$_SERVER['HTTP_HOST']}");
 
 // makes sure only people with correct perms can see the details
-if (!hasPerms($conn, "sessions", 1))
+if (!hasPerms("sessions", 1))
 	header("Location: http://{$_SERVER['HTTP_HOST']}/permission_denied.php");
 
 ?>
@@ -26,7 +26,7 @@ if (!hasPerms($conn, "sessions", 1))
 		<h3><a href="/home/team">Team</a></h3>
 		<h3><a href="/home/team/view_session.php?session=<?= $_GET['session']; ?>">View User</a></h3>
 		<p>Session details:</p>
-		<?= row2HTML($conn, "view_session", "Date", sprintf("%s/%s/%s",
+		<?= row2HTML("view_session", "Date", sprintf("%s/%s/%s",
 			substr($_GET['session'], 8, 2), // day
 			substr($_GET['session'], 5, 2), // month
 			substr($_GET['session'], 2, 2) // year
@@ -34,6 +34,6 @@ if (!hasPerms($conn, "sessions", 1))
 
 	 	<!-- CONTAINED SHIFT DETAILS -->
 		<p>Employees in Session:</p>
-		<?= table2HTML($conn, "CALL sessionShifts(?)", "s", $_GET['session']); ?>
+		<?= table2HTML("CALL sessionShifts(?)", "s", $_GET['session']); ?>
 	</body>
 </html>
