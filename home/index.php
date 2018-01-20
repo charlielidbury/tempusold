@@ -2,9 +2,11 @@
 session_start();
 
 // Checks if logged on
-if (!isset($_SESSION['user'])) header("Location: {$_SERVER['DOCUMENT_ROOT']}");
+if (!isset($_SESSION['user'])) header("Location: http://{$_SERVER['HTTP_HOST']}");
 
 include "{$_SERVER['DOCUMENT_ROOT']}/src/db.php";
+
+die(getCell("email", "employee", "name", "Charlie") . "\n");
 
 $row = getRow("role", "role", getCell("role", "employee", "name", "Charlie"));
 unset($row['role']);

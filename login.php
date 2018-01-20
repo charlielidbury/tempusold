@@ -2,8 +2,9 @@
 if ($_SERVER['REQUEST_METHOD'] == 'POST') // login has been pressed
 {
 	// getting the data from the database
-	include "./src/db.php";
-	$row = getRow($conn, "employee", "name", $_POST['username']);
+	include "src/db.php";
+
+	$hash = getCell("hash", "employee", "name", $_POST['username']);
 
 	$errors = array();
 
@@ -12,11 +13,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') // login has been pressed
 		$errors[] = "Must enter a username.";
 
 	// CHECK: USER EXISTS
-	if (!$row)
+	if (!$hash)
 		$errors[] = "User ${_POST['username']} does not exist.";
 
 	// CHECK: PASSWORD IS CORRECT
-	if (!password_verify($_POST["password"], $row["hash"]))
+	if (!password_verify($_POST["password"], $hash))
 		$errors[] = "Incorrect password";
 
 	// ACTUAL LOGIN

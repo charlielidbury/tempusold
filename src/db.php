@@ -1,4 +1,6 @@
 <?php
+session_start();
+
 if (!isset($_SESSION['dbconn']))
 {
 	include("conf.php");
@@ -108,7 +110,6 @@ function getColumn($table, $field)
 	GETS A COLUMN FROM A table
 	WARNING: ONLY THE $value IS SAFE, DO NOT USE USER INPUT FOR ANY OTHER ARGUMENT
 
-	$conn <= connection object
 	$table <= name of table data is to be extracted from
 	$field <= column to return an array of
 
@@ -235,7 +236,6 @@ function table2HTML($query, $format, $arg)
 	/*
 	PRINTS HTML REPRESENTATION OF A QUERY
 
-	$conn <= connection object
 	$query <= query with ?'s as variable names ("SELECT * FROM `employee` WHERE `name` = ?")
 	$format <= data type of $arg (s=string, i=int, d=double, b=blob)
 	$arg <= arg to be passed to the query in place of ?
@@ -353,7 +353,7 @@ function insertRow($table, $row)
 	{
 		if ($value == "") continue;
 		$fields .= "`$field`, "; // (`name`, `hash`)
-		$values .= "'{$conn->escape_string($value)}', "; // ('Charlie', 'akl;hwdjnshjdawbjadwbjkl')
+		$values .= "'{$_SESSION['dbconn']->escape_string($value)}', "; // ('Charlie', 'akl;hwdjnshjdawbjadwbjkl')
 	}
 	$fields = substr($fields, 0, -2);
 	$values = substr($values, 0, -2);
