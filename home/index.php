@@ -6,9 +6,7 @@ if (!isset($_SESSION['user'])) header("Location: http://{$_SERVER['HTTP_HOST']}"
 
 include "{$_SERVER['DOCUMENT_ROOT']}/src/db.php";
 
-die(getCell("email", "employee", "name", "Charlie") . "\n");
-
-$row = getRow("role", "role", getCell("role", "employee", "name", "Charlie"));
+$row = getRow($conn, "role", "role", getCell($conn, "role", "employee", "name", $_SESSION['user']));
 unset($row['role']);
 
 $perms = [];
@@ -36,12 +34,10 @@ foreach ($row as $perm => $level)
 		</ul>
 		<?php if (count($perms) > 0): ?>
 		<h3>Admin Actions:</h3>
-		<ul>
-			<?php
+		<ul><?php
 			foreach ($perms as $perm)
 				printf("<li><a href='/home/%s'>%s</a></li>", $perm, ucwords($perm));
-			?>
-		</ul>
+		?></ul>
 		<?php endif ?>
 	</body>
 </html>

@@ -10,11 +10,8 @@ if (isset($_GET['user']))
 	// if custom user the logged in user must have perms to edit member's details
 	$user = $_GET['user'];
 
-if ((!hasPerms("team", 2)) && $user != $_SESSION['user'])
-{
-	die("test");
+if ((!hasPerms($conn, "team", 2)) && $user != $_SESSION['user'])
 	header("Location: http://{$_SERVER['HTTP_HOST']}/permission_denied.php");
-}
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') // login has been pressed
 {
@@ -27,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') // login has been pressed
 	// ACTUAL PASSWORD CHANGE
 	if (!count($errors))
 	{
-		updateRow("employee", ["name" => $user], [
+		updateRow($conn, "employee", ["name" => $user], [
 			"hash" => password_hash($_POST['new'], PASSWORD_DEFAULT)
 		]);
 

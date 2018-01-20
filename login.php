@@ -4,7 +4,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') // login has been pressed
 	// getting the data from the database
 	include "src/db.php";
 
-	$hash = getCell("hash", "employee", "name", $_POST['username']);
+	$hash = getCell($conn, "hash", "employee", "name", $_POST['username']);
 
 	$errors = array();
 

@@ -7,7 +7,7 @@ if (!isset($_SESSION['user'])) header("Location: {$_SERVER['DOCUMENT_ROOT']}");
 include "{$_SERVER['DOCUMENT_ROOT']}/src/db.php";
 
 // if custom user the logged in user must have perms to edit member's details
-if (!hasPerms("team", 2))
+if (!hasPerms($conn, "team", 2))
 	header("Location: {$_SERVER['DOCUMENT_ROOT']}/permission_denied.php");
 
 // ----- SAFE AREA -----
@@ -58,11 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') // update has been pressed
 
 		$row['hash'] = password_hash($_POST['password'], PASSWORD_DEFAULT);
 
-<<<<<<< HEAD
-		insertRow("employee", $row);
-=======
 		insertRow($conn, "employee", $row);
->>>>>>> parent of 8f19b50... Added viewing, editing and adding employees to sessions. Woot!
 
 		header("Location: {$_GET['redirect']}");
 	}
@@ -122,7 +118,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') // update has been pressed
 					<td id="required">Role</td>
 					<td>
 						<select name="role" multiple> <?php
-						foreach (getColumn("role", "role") as $cell)
+						foreach (getColumn($conn, "role", "role") as $cell)
 							printf("<option value='%s'>%s</option>\n", $cell, $cell);
 						?> </select>
 					</td>

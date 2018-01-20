@@ -7,7 +7,7 @@ if (!isset($_SESSION['user'])) header("Location: {$_SERVER['DOCUMENT_ROOT']}");
 include "{$_SERVER['DOCUMENT_ROOT']}/src/db.php";
 
 // if custom user the logged in user must have perms to edit member's details
-if (!hasPerms("sessions", "edit"))
+if (!hasPerms($conn, "sessions", 2))
 	header("Location: {$_SERVER['DOCUMENT_ROOT']}/permission_denied.php");
 
 // ----- SAFE AREA -----
@@ -32,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') // update has been pressed
 		// Sets the organiser to the current user
 		$row['organiser'] = $_SESSION['user'];
 
-		insertRow("session", $row);
+		insertRow($conn, "session", $row);
 
 		if (isset($_GET['redirect']))
 			header("Location: {$_GET['redirect']}");

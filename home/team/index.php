@@ -4,10 +4,11 @@ session_start();
 // makes sure only people who are logged on go past this point
 if (!isset($_SESSION['user'])) header("Location: http://{$_SERVER['HTTP_HOST']}");
 
+
 include  "{$_SERVER['DOCUMENT_ROOT']}/src/db.php";
 
 // permission check
-if (!hasPerms("team", 1))
+if (!hasPerms($conn, "team", 1))
 	header("Location: http://{$_SERVER['HTTP_HOST']}/permission_denied.php");
 
 ?>
@@ -28,6 +29,6 @@ if (!hasPerms("team", 1))
 			<li><a href="create_user.php?redirect=index.php">Create new user</a></li>
 		</ul>
 
-		<?php table2HTML("SELECT * FROM `view_employee`");	?>
+		<?php table2HTML($conn, "SELECT * FROM `view_employee`");	?>
 	</body>
 </html>

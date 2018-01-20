@@ -9,7 +9,7 @@ if (! (isset($_SESSION['user']) && isset($_GET['user'])) )
 	header("Location: http://{$_SERVER['HTTP_HOST']}");
 
 // makes sure only people with correct perms can see the details
-if ( (!hasPerms("team", 1)) && $_SESSION['user'] != $_GET['user'])
+if ( (!hasPerms($conn, "team", 1)) && $_SESSION['user'] != $_GET['user'])
 	header("Location: http://{$_SERVER['HTTP_HOST']}/permission_denied.php");
 
 ?>
@@ -33,9 +33,9 @@ if ( (!hasPerms("team", 1)) && $_SESSION['user'] != $_GET['user'])
 		<?php
 		// adds permissions to the table
 		$extra = '<tr><td>Permissions</td><td>';
-		$extra .= row2HTML("role", "role", getCell("role", "employee", "name", $_GET['user']));
+		$extra .= row2HTML($conn, "role", "role", getCell($conn, "role", "employee", "name", $_GET['user']));
 		$extra .= '</td></tr>';
-		echo row2HTML("view_employee", "name", $_GET['user'], $extra);
+		echo row2HTML($conn, "view_employee", "name", $_GET['user'], $extra);
 		?>
 	</body>
 </html>

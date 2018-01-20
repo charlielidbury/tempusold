@@ -17,6 +17,6 @@ if (!isset($_SESSION['user'])) header("Location: {$_SERVER['HTTP_HOST']}");
 		<h2><a href="/home/">Home</a></h2>
 		<h3><a href="/home/sessions/">Sessions</a></h3>
 
-		<?php table2HTML("CALL userSessions(?)", "s", $_SESSION['user']); ?>
+		<?php table2HTML($conn, "CALL userSessions(?)", "s", $_SESSION['user']); ?>
 	</body>
 </html>
