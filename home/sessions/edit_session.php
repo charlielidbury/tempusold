@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <?php
 session_start();
 
@@ -138,3 +139,5 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') // update has been pressed
 		</a>
 	</body>
 </html>
+=======
+>>>>>>> parent of 8f19b50... Added viewing, editing and adding employees to sessions. Woot!

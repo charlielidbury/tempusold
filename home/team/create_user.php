@@ -58,7 +58,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') // update has been pressed
 
 		$row['hash'] = password_hash($_POST['password'], PASSWORD_DEFAULT);
 
+<<<<<<< HEAD
 		insertRow("employee", $row);
+=======
+		insertRow($conn, "employee", $row);
+>>>>>>> parent of 8f19b50... Added viewing, editing and adding employees to sessions. Woot!
 
 		header("Location: {$_GET['redirect']}");
 	}

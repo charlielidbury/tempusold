@@ -145,8 +145,6 @@ function getTable($query, $format="", $arg)
 	$query <= query with ?'s as variable names ("SELECT * FROM `employee` WHERE `name` = ?")
 	$format <= data type of $arg (s=string, i=int, d=double, b=blob)
 	$arg <= arg to be passed to the query in place of ?
-
-	returns  => 2D array with table result in
 	*/
 
 	$stmt = $_SESSION['dbconn']->prepare($query);
@@ -287,23 +285,32 @@ function hasPerms($perm, $level)
 	return getCell($perm, "role", "role", $users_role) >= $level;
 }
 
+<<<<<<< HEAD
 function updateRow($table, $conditions, $changes)
+=======
+function updateRow($conn, $table, $key, $value, $changes)
+>>>>>>> parent of 8f19b50... Added viewing, editing and adding employees to sessions. Woot!
 {
 	/*
 	MAKES A LIST OF CHANGES TO A ROW IN A TABLE
 	WARNING: DOES NOT WORK WHEN UPDATING CELLS TO NULL VALUE
 
 	$table <= table the row is in
-	$conditions <= array where the key is the column and the value is the value it should be (WHERE $key = $value)
+	$key <= key used to identify that row (WHERE ? = "Charlie")
+	$value <= value the key should be at row (WHERE `name` = ?)
 	$changes <= accociative array where the key is the field and the value is the new value
 		~ i.e: array( 'name' => "CharlieLidbury" ) changes the name to Charlie of selected rows
 	*/
 
 	// creates query
-	$changes_str = implode(array_keys($changes), "` = ? , `"); // puts $changes into an SQL statement
-	$conditions_str = implode(array_keys($conditions), "` = ? AND `"); // puts $conditions into a SQL statement
-	$qformat = "UPDATE `%s` SET `%s` = ? WHERE `%s` = ? "; // string to format the SQL statement
-	$query = sprintf($qformat, $table, $changes_str, $conditions_str); // brings together the statement
+	$query = "UPDATE `$table` SET\n "; // "UPDATE `employee` SET "
+	foreach ($changes as $field => $new)
+		if ($new == "")
+			$query .= "\t`$field` = NULL,\n"; // "`email` = NULL, "
+		else
+			$query .= "\t`$field` = '$new',\n"; // "`email` = 'charlie.lidbury@icloud.com', "
+	$query = substr($query, 0, -2); // removes trailing comma and newline
+	$query .= "\nWHERE `$key` = ?\n"; // "WHERE `name` = 'Charlie'"
 
 	// prepares statement
 	$stmt = $_SESSION['dbconn']->prepare($query);
@@ -315,25 +322,11 @@ function updateRow($table, $conditions, $changes)
 		"double"  => "d",
 		"string"  => "s"
 	);
-	$format = "";
-	foreach ($conditions as $value) // adds the conditions to the format string
-		$format .= $conversion[gettype($value)];
-	foreach ($changes as $value) // adds the changes to the format string
-		$format .= $conversion[gettype($value)];
+	$format = $conversion[gettype($value)];
 
-	$con_vals = array_values($conditions);
-	$cha_vals = array_values($changes);
-	/*
-	var_dump($query);
-	var_dump($format);
-	var_dump(...$con_vals);
-	var_dump(...$cha_vals);
-	*/
 	// execute query
-	$stmt->bind_param($format, ...$cha_vals, ...$con_vals);
+	$stmt->bind_param($format, $value);
 	$stmt->execute();
-
-	$stmt->close();
 }
 
 function insertRow($table, $row)
@@ -364,7 +357,11 @@ function insertRow($table, $row)
 	$_SESSION['dbconn']->query($query);
 }
 
+<<<<<<< HEAD
 function deleteRow($table, $conditions)
+=======
+function deleteRow($conn, $table, $key, $value)
+>>>>>>> parent of 8f19b50... Added viewing, editing and adding employees to sessions. Woot!
 {
 	/*
 	DELETES SPEICIFED ROW FROM TABLE
@@ -374,10 +371,7 @@ function deleteRow($table, $conditions)
 	$value <= value the key should be at row (WHERE `name` = ?)
 	*/
 
-	// creates query
-	$conditions_str = implode(array_keys($conditions), "` = ? AND `"); // puts $conditions into a SQL statement
-	$qformat = "DELETE FROM `%s` WHERE `%s` = ? "; // string to format the SQL statement
-	$query = sprintf($qformat, $table, $conditions_str); // brings together the statement
+	$query = "DELETE FROM `$table` WHERE `$key` = ?";
 
 	// prepares statement
 	$stmt = $_SESSION['dbconn']->prepare($query);
@@ -389,14 +383,10 @@ function deleteRow($table, $conditions)
 		"double"  => "d",
 		"string"  => "s"
 	);
-	$format = "";
-	foreach ($conditions as $value) // adds the conditions to the format string
-		$format .= $conversion[gettype($value)];
-
-	$con_vals = array_values($conditions);
+	$format = $conversion[gettype($value)];
 
 	// execute query
-	$stmt->bind_param($format, ...$con_vals);
+	$stmt->bind_param($format, $value);
 	$stmt->execute();
 }
 
