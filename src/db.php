@@ -8,6 +8,24 @@ if ($conn->connect_error)
 {
 	die ("Connection failed: " . $conn->connect_error);
 }
+
+function execute($conn, $query)
+{
+	/*
+	WARNING: UNSAFE EVERYWHERE
+	BLINDLY EXCECUTES A QUERY ON THE SERVER
+
+	$conn <= connection object
+	$query <= query to be executed
+	*/
+	$stmt = $conn->prepare($query);
+	if (!$stmt) die ("Statement failed to prepare: " . $conn->error);
+	
+	// execute query
+	if ($format) $stmt->bind_param($format, $arg);
+	$stmt->execute();
+}
+
 function getCell($conn, $column, $table, $key, $value)
 {
 	/*
@@ -302,5 +320,29 @@ function deleteRow($conn, $table, $conditions)
 	// execute query
 	$stmt->bind_param($format, ...$con_vals);
 	$stmt->execute();
+}
+
+function quickVal($conn, $query, $format="", $arg)
+{
+	/*
+	RETURNS RESULT OF QUERY
+
+	$conn <= connection object
+	$query <= query with ?'s as variable names ("SELECT * FROM `employee` WHERE `name` = ?")
+	$format <= data type of $arg (s=string, i=int, d=double, b=blob)
+	$arg <= arg to be passed to the query in place of ?
+	returns  => first value of first row fetched
+
+	*/
+	$stmt = $conn->prepare($query);
+	if (!$stmt) die ("Statement failed to prepare: " . $conn->error);
+	// execute query
+	if ($format) $stmt->bind_param($format, $arg);
+	$stmt->execute();
+	// get result
+	$result = $stmt->get_result();
+
+	$stmt->close();
+	return $result->fetch_row()[0];
 }
 ?>

@@ -25,7 +25,7 @@ foreach ($row as $perm => $level)
 	<body>
 		<h1><a href="/">Tempus</a></h1>
 		<h2><a href="/home/">Home</a></h2>
-		<h3>Logged in as <?= $_SESSION["user"]; ?></h3>
+		<h3>Logged in as <?= $_SESSION["user"]; ?>:</h3>
 		<ul>
 			<li><a href="/home/team/view_user.php?user=<?= $_SESSION['user']; ?>">Profile</a></li>
 			<li><a href="/home/my_sessions.php">Sessions</a></li>
