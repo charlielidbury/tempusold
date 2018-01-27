@@ -3,10 +3,13 @@ session_start();
 
 include "{$_SERVER['DOCUMENT_ROOT']}/src/db.php";
 
-// makes sure only logged on users past this point
-// makes sure user is set in the url
-if (! (isset($_SESSION['user']) && isset($_GET['user'])) )
-	header("Location: http://{$_SERVER['HTTP_HOST']}");
+// makes sure $_GET['user'] is set
+if (!isset($_GET['user']))
+	die("User not set in GET variables");
+
+// redirects users who aren't logged in
+if (!isset($_SESSION['user']))
+	header("Location: http://{$_SERVER['HTTP_HOST']}/login.php?redirect={$_SERVER['REQUEST_URI']}");
 
 // makes sure only people with correct perms can see the details
 if ( (!hasPerms($conn, "team", 1)) && $_SESSION['user'] != $_GET['user'])

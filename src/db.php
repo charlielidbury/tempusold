@@ -20,7 +20,7 @@ function execute($conn, $query)
 	*/
 	$stmt = $conn->prepare($query);
 	if (!$stmt) die ("Statement failed to prepare: " . $conn->error);
-	
+
 	// execute query
 	if ($format) $stmt->bind_param($format, $arg);
 	$stmt->execute();
@@ -218,7 +218,7 @@ function hasPerms($conn, $perm, $level)
 {
 	/*
 	CHECKS IF USER HAS PERMISSIONS
-	$perm <= name for permission ("members", "sessions", ... )
+	$perm <= name for permission ("members", "sessions", "payments")
 	$level <= level of perm (0, 1, 2) (for none, view & edit respectively)
 	*/
 	$users_role = getCell($conn, "role", "employee", "name", $_SESSION['user']);

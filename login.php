@@ -28,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') // login has been pressed
 		$_SESSION['user'] = $_POST['username'];
 
 		// Sends user to home page
-		header("Location: /home/");
+		header("Location: {$_GET['redirect']}");
 	}
 }
 ?>
@@ -49,7 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') // login has been pressed
 			foreach ($errors as $error) echo "<li>$error</li>";
 		?> </ul>
 
-		<form action="." method="POST">
+		<form action="<?= "http://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]" ?>" method="POST">
 			<table>
 				<tr>
 					<td>Username:</td>

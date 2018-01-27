@@ -2,9 +2,9 @@
 session_start();
 include "{$_SERVER['DOCUMENT_ROOT']}/src/db.php";
 
-// makes sure only logged on users past this point
+// redirects users who aren't logged in
 if (!isset($_SESSION['user']))
-	header("Location: http://{$_SERVER['HTTP_HOST']}");
+	header("Location: http://{$_SERVER['HTTP_HOST']}/login.php?redirect={$_SERVER['REQUEST_URI']}");
 
 // makes sure only users with view session perms past this point
 if (!hasPerms($conn, "sessions", 1))

@@ -1,9 +1,11 @@
 <?php
 session_start();
-include "{$_SERVER['DOCUMENT_ROOT']}/src/db.php";
 
-// makes sure only logged on users past this point
-if (!isset($_SESSION['user'])) header("Location: {$_SERVER['HTTP_HOST']}");
+// redirects users who aren't logged in
+if (!isset($_SESSION['user']))
+	header("Location: http://{$_SERVER['HTTP_HOST']}/login.php?redirect={$_SERVER['REQUEST_URI']}");
+
+include "{$_SERVER['DOCUMENT_ROOT']}/src/db.php";
 ?>
 <!DOCTYPE html>
 <html>
