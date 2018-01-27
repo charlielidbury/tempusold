@@ -13,7 +13,11 @@ unset($row['role']);
 $perms = [];
 foreach ($row as $perm => $level)
 	if ($level >= 1)
-		$perms[] = $perm;
+		$perms[] = [
+			"team" => "<a href='/home/team'>Team</a>",
+			"sessions" => "<a href='/home/sessions'>All Sessions</a>",
+			"payments" => "<a href='/home/payments'>Manage Payments</a>"
+		][$perm];
 
 ?>
 <!DOCTYPE html>
@@ -29,15 +33,16 @@ foreach ($row as $perm => $level)
 		<h3>Logged in as <?= $_SESSION["user"]; ?>:</h3>
 		<ul>
 			<li><a href="/home/team/view_user.php?user=<?= $_SESSION['user']; ?>">Profile</a></li>
-			<li><a href="/home/my_sessions.php">Sessions</a></li>
-			<li><a href="/home/payments/">Payments</a></li>
+			<li><a href="/home/my_sessions.php">Personal Sessions</a></li>
+			<li><a href="/home/payments/">Personal Payments</a></li>
 			<li><a href="/src/logout.php">Logout</a></li>
 		</ul>
 		<?php if (count($perms) > 0): ?>
 		<h3>Admin Actions:</h3>
+
 		<ul><?php
 			foreach ($perms as $perm)
-				printf("<li><a href='/home/%s'>%s</a></li>", $perm, ucwords($perm));
+				printf("<li>%s</li>", $perm);
 		?></ul>
 		<?php endif ?>
 	</body>
