@@ -42,8 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') // update has been pressed
 					"employee" => $employee,
 					"date" => $_GET['session']
 				], [
-					"length" => $_POST[$employee . "hours"],
-					"rate" => $_POST[$employee . "rate"]
+					"length" => $_POST[$employee . "hours"]
 				]);
 
 		// refreshes session data
@@ -54,7 +53,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') // update has been pressed
 	{
 		unset($_POST['submit']);
 		foreach ($_POST as $employee)
-			insertRow($conn, "shift", ["date" => $_GET['session'], "employee" => $employee]);
+			insertRow($conn, "shift", [
+				"date" => $_GET['session'],
+				"employee" => $employee,
+				"rate" => getCell($conn, "rate", "employee", "name", $employee)
+			]);
 
 		// updates shift data
 		$shift_data = getTable($conn, "SELECT * FROM `shift` WHERE `date` = ?", "s", $_GET['session']);
@@ -109,14 +112,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') // update has been pressed
 				<tr>
 					<th>Employee</th>
 					<th>Hours Worked</th>
-					<th>Hourly Rate</th>
 					<th>Remove</th>
 				</tr>
 				<?php foreach($shift_data as $shift): ?>
 				<tr>
 					<td><?= $shift['employee']; ?></td>
 					<td><input type="time" name="<?= $shift['employee'] ?>hours" value="<?= $shift['length']; ?>"></td>
-					<td><input type="number" name="<?= $shift['employee'] ?>rate" step="0.01" value="<?= $shift['rate']; ?>"></td>
 					<td><input type="checkbox" name="<?= $shift['employee'] ?>remove"></td>
 				</tr>
 				<?php endforeach ?>

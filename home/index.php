@@ -15,7 +15,7 @@ foreach ($row as $perm => $level)
 	if ($level >= 1)
 		$perms[] = [
 			"team" => "<a href='/home/team'>Team</a>",
-			"sessions" => "<a href='/home/sessions'>All Sessions</a>",
+			"sessions" => "<a href='/home/sessions'>Manage Sessions</a>",
 			"payments" => "<a href='/home/payments'>Manage Payments</a>"
 		][$perm];
 
