@@ -7,10 +7,19 @@ include "{$_SERVER['DOCUMENT_ROOT']}/src/db.php";
 if (!isset($_SESSION['user']))
 	header("Location: http://{$_SERVER['HTTP_HOST']}/login.php?redirect={$_SERVER['REQUEST_URI']}");
 
+// redirects users who aren't allowed to see payments
+if (!hasPerms($conn, "payments", 1))
+	header("Location: http://{$_SERVER['HTTP_HOST']}/permission_denied.php");
+
 if ($_SERVER['REQUEST_METHOD'] == "POST")
 {
+	// makes sure only users with payments::edit past this point
+	if (!hasPerms($conn, "payments", 2))
+		header("Location: http://{$_SERVER['HTTP_HOST']}/permission_denied.php");
+
 	$employee = substr($_POST['submit'], 4);
 	unset($_POST['submit']);
+
 	// makes the payment
 	insertRow($conn, "payment", [
 		"date" => date("Y-m-d"),
