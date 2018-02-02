@@ -12,8 +12,9 @@ $user = $_GET['user'];
 if (!hasPerms($conn, "sessions", 2))
 	header("Location: http://{$_SERVER['HTTP_HOST']}/permission_denied.php");
 
+	$query = "SELECT *, HOUR(`length`) as hours, MINUTE(`length`) as minutes  FROM `shift` WHERE `date` = ?";
 $session_data = getRow($conn, "session", "date", $_GET['session']);
-$shift_data = getTable($conn, "SELECT * FROM `shift` WHERE `date` = ?", "s", $_GET['session']);
+$shift_data = getTable($conn, $query, "s", $_GET['session']);
 $session_employees = array_column($shift_data, "employee");
 
 // ----- SAFE AREA -----
@@ -36,18 +37,26 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') // update has been pressed
 					"employee" => $employee,
 					"date" => $_GET['session']
 				]);
-			else
+			else {
 				// updates user info
-				updateRow($conn, "shift", [
-					"employee" => $employee,
-					"date" => $_GET['session']
-				], [
-					"length" => $_POST[$employee . "hours"]
-				]);
+				$hours = $_POST["{$employee}hours"];
+				$minutes = $_POST["{$employee}minutes"];
+				$date = "$hours:$minutes:00";
+				// CHECK: DATE IS IN HH:MM:SS FORMAT
+				if (0 !== preg_match("(([0-1][0-9])|([2][0-3])):([0-5][0-9]):([0-5][0-9]))", $date))
+					updateRow($conn, "shift", [
+						"employee" => $employee,
+						"date" => $_GET['session']
+					], [
+						"length" => $date
+					]);
+				else
+					die("Date in wrong format");
+			}
 
 		// refreshes session data
 		$session_data = getRow($conn, "session", "date", $_GET['session']);
-		$shift_data = getTable($conn, "SELECT * FROM `shift` WHERE `date` = ?", "s", $_GET['session']);
+		$shift_data = getTable($conn, $query, "s", $_GET['session']);
 
 	} elseif ($_POST['submit'] == "Add") // ADD WORKERS
 	{
@@ -60,7 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') // update has been pressed
 			]);
 
 		// updates shift data
-		$shift_data = getTable($conn, "SELECT * FROM `shift` WHERE `date` = ?", "s", $_GET['session']);
+		$shift_data = getTable($conn, $query, "s", $_GET['session']);
 	}
 }
 
@@ -117,7 +126,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') // update has been pressed
 				<?php foreach($shift_data as $shift): ?>
 				<tr>
 					<td><?= $shift['employee']; ?></td>
-					<td><input type="time" name="<?= $shift['employee'] ?>hours" value="<?= $shift['length']; ?>"></td>
+					<td>
+						<input type="number" step="1" min="0" max="24" name="<?= $shift['employee'] ?>hours" value="<?= $shift['hours']; ?>">
+						<input type="number" step="1" min="0" max="59" name="<?= $shift['employee'] ?>minutes" value="<?= $shift['minutes']; ?>">
+					</td>
 					<td><input type="checkbox" name="<?= $shift['employee'] ?>remove"></td>
 				</tr>
 				<?php endforeach ?>
