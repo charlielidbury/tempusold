@@ -12,15 +12,15 @@ $user = $_GET['user'];
 if (!hasPerms($conn, "sessions", 2))
 	header("Location: http://{$_SERVER['HTTP_HOST']}/permission_denied.php");
 
-	$query = "SELECT *, HOUR(`length`) as hours, MINUTE(`length`) as minutes  FROM `shift` WHERE `date` = ?";
-$session_data = getRow($conn, "session", "date", $_GET['session']);
+$query = "SELECT *, HOUR(`length`) as hours, MINUTE(`length`) as minutes  FROM `shift` WHERE `date` = ?";
+$session_data = getRow($conn, "session", ["date" => $_GET['session']]);
 $shift_data = getTable($conn, $query, "s", $_GET['session']);
 $session_employees = array_column($shift_data, "employee");
 
 // ----- SAFE AREA -----
 if ($_SERVER['REQUEST_METHOD'] == 'POST') // update has been pressed
 {
-	if ($_POST['submit'] == "Update") // UPDATE DETAILS
+	if ($_POST['submit'] == "Update Details") // UPDATE DETAILS
 	{
 		// update session info
 		updateRow($conn, "session", ["date" => $_GET['session']], [
@@ -29,6 +29,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') // update has been pressed
 			"end" => $_POST['end']
 		]);
 
+		// refreshes session data
+		$session_data = getRow($conn, "session", ["date" => $_POST['date']]);
+	}
+	elseif ($_POST['submit'] == "Update Shifts") // UPDATE SHIFTS
+	{
 		// update shift info
 		foreach ($session_employees as $employee)
 			if ($_POST[$employee . "remove"] == "on")
@@ -54,11 +59,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') // update has been pressed
 					die("Date in wrong format");
 			}
 
-		// refreshes session data
-		$session_data = getRow($conn, "session", "date", $_GET['session']);
+		// refreshes shift data
 		$shift_data = getTable($conn, $query, "s", $_GET['session']);
-
-	} elseif ($_POST['submit'] == "Add") // ADD WORKERS
+	}
+	elseif ($_POST['submit'] == "Add Workers") // ADD WORKERS
 	{
 		unset($_POST['submit']);
 		foreach ($_POST as $employee)
@@ -71,6 +75,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') // update has been pressed
 		// updates shift data
 		$shift_data = getTable($conn, $query, "s", $_GET['session']);
 	}
+	elseif ($_POST['submit'] == "Invite Workers")
+	{
+		unset($_POST['submit']);
+		foreach ($_POST as $employee)
+			insertRow($conn, "invite", [
+				"session" => $session_data['date'],
+				"employee" => $employee
+			]);
+	}
+	elseif (isset($_POST['employee']))
+		deleteRow($conn, "invite", [
+			"session" => $session_data['date'],
+			"employee" => $_POST['employee']
+		]);
 }
 
 ?>
@@ -91,9 +109,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') // update has been pressed
 			foreach ($errors as $error) printf("<li>%s</li>\n", $error);
 		?>	</ul>
 
-		<!-- Changes to existing fields -->
+		<!-- CHANGE SESSION DETAILS -->
+		<h3>Details</h3>
 		<form action="<?= "http://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]" ?>" method="POST">
-			<p>Edit Session Details:</p>
 			<table>
 				<tr>
 					<th>Aspect</th>
@@ -101,7 +119,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') // update has been pressed
 				</tr>
 				<tr>
 					<td>Date</td>
-					<td><input type="date" name="date" value=<?= $_GET['session']; ?>></td>
+					<td><input type="date" name="date" value=<?= $session_data['date']; ?>></td>
 				</tr>
 				<tr>
 					<td>Organiser</td>
@@ -116,7 +134,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') // update has been pressed
 					<td><input type="time" name="end" value="<?= $session_data['end']; ?>"></td>
 				</tr>
 			</table>
-			<p>Edit Shifts:</p>
+			<input type="submit" value="Update Details" name="submit" />
+		</form>
+		<!-- CHANGE SESSION WORKERS -->
+		<h3>Workers</h3>
+		<!-- Current shifts -->
+		<form action="<?= "http://{$_SERVER["HTTP_HOST"]}{$_SERVER["REQUEST_URI"]}" ?>" method="POST">
 			<table>
 				<tr>
 					<th>Employee</th>
@@ -124,27 +147,42 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') // update has been pressed
 					<th>Remove</th>
 				</tr>
 				<?php foreach($shift_data as $shift): ?>
-				<tr>
-					<td><?= $shift['employee']; ?></td>
-					<td>
-						<input type="number" step="1" min="0" max="24" name="<?= $shift['employee'] ?>hours" value="<?= $shift['hours']; ?>">
-						<input type="number" step="1" min="0" max="59" name="<?= $shift['employee'] ?>minutes" value="<?= $shift['minutes']; ?>">
-					</td>
-					<td><input type="checkbox" name="<?= $shift['employee'] ?>remove"></td>
-				</tr>
+					<tr>
+						<td><?= $shift['employee']; ?></td>
+						<td>
+							<input type="number" step="1" min="0" max="24" name="<?= $shift['employee'] ?>hours" value="<?= $shift['hours']; ?>">
+							<input type="number" step="1" min="0" max="59" name="<?= $shift['employee'] ?>minutes" value="<?= $shift['minutes']; ?>">
+						</td>
+						<td><input type="checkbox" name="<?= $shift['employee'] ?>remove"></td>
+					</tr>
 				<?php endforeach ?>
 			</table>
-			<input type="submit" value="Update" name="submit" />
+			<input type="submit" value="Update Shifts" name="submit" />
 		</form>
-		<!-- Add extra workers -->
-		<p>Add Extra Workers:</p>
+		<!-- Add shifts -->
 		<form action="<?= "http://{$_SERVER["HTTP_HOST"]}{$_SERVER["REQUEST_URI"]}" ?>" method="POST">
 			<?php
 			foreach(getColumn($conn, "employee", "name") as $employee)
 				if (!in_array($employee, $session_employees))
 					printf('<input type="checkbox" name="%1$s" value="%1$s">%1$s<br>', $employee);
 			?>
-			<input type="submit" value="Add" name="submit">
+			<input type="submit" value="Add Workers" name="submit">
+		</form>
+		<!-- INVITES -->
+		<h3>Invites</h3>
+		<form action="<?= "http://{$_SERVER["HTTP_HOST"]}{$_SERVER["REQUEST_URI"]}" ?>" method="POST">
+			<?php
+			// Current Invites
+			table2HTML($conn, "CALL sessionInvites(?)", "s", $session_data['date']);
+			// Invite Workers
+			foreach(getColumn($conn, "employee", "name") as $employee)
+				if (!getRow($conn, "invite", [
+					"employee" => $employee,
+					"session" => $session_data['date']
+				]))
+					printf('<input type="checkbox" name="%1$s" value="%1$s">%1$s<br>', $employee);
+			?>
+			<input type="submit" value="Invite Workers" name="submit">
 		</form>
 		<!-- Delete button -->
 		<a href="<?= "delete_session.php?session={$_GET['session']}&redirect={$_GET['redirect']}" ?>">

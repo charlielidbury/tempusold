@@ -62,7 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') // update has been pressed
 	}
 }
 
-$user_data = getRow($conn, "employee", "name", $_GET['user']);
+$user_data = getRow($conn, "employee", ["name" => $_GET['user']]);
 ?>
 <!DOCTYPE html>
 <html>

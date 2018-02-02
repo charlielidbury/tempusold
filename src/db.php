@@ -59,30 +59,38 @@ function getCell($conn, $column, $table, $key, $value)
 	$stmt->close();
 	return $row[0];
 }
-function getRow($conn, $table, $key, $value)
+function getRow($conn, $table, $conditions)
 {
 	/*
 	GETS A ROW FROM A table
 	WARNING: ONLY THE $value IS SAFE, DO NOT USE USER INPUT FOR ANY OTHER ARGUMENT
 	$conn <= connection object
 	$table <= name of table data is to be extracted from
-	$key <= field for data to be recognised with (WHERE $key = "Charlie")
-	$value <= value for data to be recognised with (WHERE "name" = $value)
+	$conditions <= array where the key is the column and the value is the value it should be (WHERE $key = $value)
 	returns => the single row from the table (associative array)
 	*/
-	$stmt = $conn->prepare("SELECT * FROM `$table` WHERE `$key` = ?");
+	// creates query
+	$conditions_str = implode(array_keys($conditions), "` = ? AND `"); // puts $conditions into a SQL statement
+	$qformat = "SELECT * FROM `%s` WHERE `%s` = ?"; // string to format the SQL statement
+	$query = sprintf($qformat, $table, $conditions_str); // brings together the statement
+
+	$stmt = $conn->prepare($query);
 	if (!$stmt) die ("Statement failed to prepare: " . $conn->error);
-	// makes the format string 'sssi' for instance
+
+	// makes the format string
 	$conversion = array(
 		"integer" => "i",
 		"double"  => "d",
 		"string"  => "s"
 	);
-	$format = $conversion[gettype($value)];
-	// binds things together
-	$stmt->bind_param($format, $value);
+	$format = "";
+	foreach ($conditions as $value) // adds the conditions to the format string
+		$format .= $conversion[gettype($value)];
+	$con_vals = array_values($conditions);
 	// execute query
+	$stmt->bind_param($format, ...$con_vals);
 	$stmt->execute();
+
 	// get result
 	$result = $stmt->get_result();
 	// gets result
@@ -297,8 +305,7 @@ function deleteRow($conn, $table, $conditions)
 	DELETES SPEICIFED ROW FROM TABLE
 	$conn <= connection object
 	$table <= table the row is in
-	$key <= key used to identify that row (WHERE ? = "Charlie")
-	$value <= value the key should be at row (WHERE `name` = ?)
+	$conditions <= array where the key is the column and the value is the value it should be (WHERE $key = $value)
 	*/
 	// creates query
 	$conditions_str = implode(array_keys($conditions), "` = ? AND `"); // puts $conditions into a SQL statement

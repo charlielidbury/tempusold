@@ -7,7 +7,9 @@ if (!isset($_SESSION['user']))
 
 include "{$_SERVER['DOCUMENT_ROOT']}/src/db.php";
 
-$row = getRow($conn, "role", "role", getCell($conn, "role", "employee", "name", $_SESSION['user']));
+$row = getRow($conn, "role", [
+	"role" => getCell($conn, "role", "employee", "name", $_SESSION['user'])
+]);
 unset($row['role']);
 
 $perms = [];
