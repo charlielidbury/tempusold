@@ -6,7 +6,7 @@ include "{$_SERVER['DOCUMENT_ROOT']}/src/db.php";
 // redirects users who aren't logged in
 if (!isset($_SESSION['user']))
 	header("Location: http://{$_SERVER['HTTP_HOST']}/login.php?redirect={$_SERVER['REQUEST_URI']}");
-	
+
 // makes sure only people with correct perms can see the details
 if (!hasPerms($conn, "sessions", 1))
 	header("Location: http://{$_SERVER['HTTP_HOST']}/permission_denied.php");
@@ -25,7 +25,7 @@ if (!hasPerms($conn, "sessions", 1))
 		<h2><a href="/home">Home</a></h2>
 		<h3><a href="/home/team">Team</a></h3>
 		<h3><a href="/home/team/view_session.php?session=<?= $_GET['session']; ?>">View User</a></h3>
-		<p>Session details:</p>
+		<h3>Details</h3>
 		<?php
 		// SESSION DETAILS
 		// 2018-01-16 => 16/01/18
@@ -37,7 +37,10 @@ if (!hasPerms($conn, "sessions", 1))
 		echo row2HTML($conn, "view_session", "Date", $date);
 		?>
 	 	<!-- CONTAINED SHIFT DETAILS -->
-		<p>Employees in Session:</p>
+		<h3>Employees</h3>
 		<?= table2HTML($conn, "CALL sessionShifts(?)", "s", $_GET['session']); ?>
+		<!-- INVITE DETAILS -->
+		<h3>Invites</h3>
+		<?= table2HTML($conn, "CALL sessionInvites(?)", "s", $_GET['session']); ?>
 	</body>
 </html>
