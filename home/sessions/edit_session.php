@@ -43,20 +43,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') // update has been pressed
 					"date" => $_GET['session']
 				]);
 			else {
-				// updates user info
-				$hours = $_POST["{$employee}hours"];
-				$minutes = $_POST["{$employee}minutes"];
-				$date = "$hours:$minutes:00";
-				// CHECK: DATE IS IN HH:MM:SS FORMAT
-				if (0 !== preg_match("(([0-1][0-9])|([2][0-3])):([0-5][0-9]):([0-5][0-9]))", $date))
-					updateRow($conn, "shift", [
-						"employee" => $employee,
-						"date" => $_GET['session']
-					], [
-						"length" => $date
-					]);
-				else
-					die("Date in wrong format");
+				updateRow($conn, "shift", [
+					"employee" => $employee,
+					"date" => $_GET['session']
+				], [
+					"length" => $_POST[$employee . "hours"]
+				]);
 			}
 
 		// refreshes shift data
@@ -149,10 +141,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') // update has been pressed
 				<?php foreach($shift_data as $shift): ?>
 					<tr>
 						<td><?= $shift['employee']; ?></td>
-						<td>
-							<input type="number" step="1" min="0" max="24" name="<?= $shift['employee'] ?>hours" value="<?= $shift['hours']; ?>">
-							<input type="number" step="1" min="0" max="59" name="<?= $shift['employee'] ?>minutes" value="<?= $shift['minutes']; ?>">
-						</td>
+						<td><input type="time" name="<?= $shift['employee'] ?>hours" value="<?= $shift['length']; ?>"></td>
 						<td><input type="checkbox" name="<?= $shift['employee'] ?>remove"></td>
 					</tr>
 				<?php endforeach ?>
