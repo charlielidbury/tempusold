@@ -9,22 +9,43 @@ if ($conn->connect_error)
 	die ("Connection failed: " . $conn->connect_error);
 }
 
-function execute($conn, $query)
+function execute($conn, $query, $formats="", $args=[])
 {
-	/*
-	WARNING: UNSAFE EVERYWHERE
-	BLINDLY EXCECUTES A QUERY ON THE SERVER
+	// Allows users to add a string and it gets turned into array ("Charlie" => ["Charlie"])
+	if (gettype($args) != "array") $args = [$args];
 
-	$conn <= connection object
-	$query <= query to be executed
-	*/
+	// prepares query
 	$stmt = $conn->prepare($query);
 	if (!$stmt) die ("Statement failed to prepare: " . $conn->error);
-
 	// execute query
-	if ($format) $stmt->bind_param($format, $arg);
+	if ($formats) $stmt->bind_param($formats, ...$args);
 	$stmt->execute();
+
+	// gets result
+	$result = $stmt->get_result();
+	// proccesses result
+	if ($result->num_rows == 1)
+		if ($result->field_count == 1)
+			// RETURN THE CELL
+			$final = $result->fetch_row()[0];
+		else
+			// RETURN THE ROW
+			$final = $result->fetch_assoc();
+	else {
+		$final = [];
+		if ($result->field_count == 1)
+			// RETURN THE COLUMN
+			while ($row = $result->fetch_row())
+				$final[] = $row[0];
+		else // RETURN THE TABLE
+			while ($row = $result->fetch_assoc())
+				$final[] = $row;
+	}
+	// returns result
+	return $final;
 }
+
+function q(...$args) { return execute(...$args); }
 
 function getCell($conn, $column, $table, $key, $value)
 {
