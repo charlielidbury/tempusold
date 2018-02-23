@@ -4,48 +4,107 @@ include("conf.php");
 $conn = new mysqli($host, $user, $pass, $name);
 $conn->set_charset("utf-8");
 // Check connection
+
 if ($conn->connect_error)
 {
 	die ("Connection failed: " . $conn->connect_error);
 }
 
-function execute($conn, $query, $formats="", $args=[])
+function format_args($args)
 {
+	/*
+	Gets a list of args and turns it into a string of their types
+
+	[1, 2, "test"] => "iis"
+	*/
+	$conversion = [
+		"integer" => "i",
+		"double"  => "d",
+		"string"  => "s"
+	];
+
+	$str = "";
+	foreach ($args as $value)
+		$str .= $conversion[gettype($value)];
+
+	return $str;
+}
+
+function format_result($result, $format)
+{
+	// Makes $format case insensitive
+	$format = strtoupper($format);
+
+	if ($format == "CELL")
+		// RETURN THE CELL
+		return $result->fetch_row()[0];
+	elseif ($format == "ROW")
+		// RETURN THE ROW
+		return $result->fetch_assoc();
+	else {
+		$final = [];
+
+		if ($format == "COLUMN")
+			// RETURN THE COLUMN
+			while ($row = $result->fetch_row())
+				$final[] = $row[0];
+		elseif ($format == "TABLE")
+			// RETURN THE TABLE
+			while ($row = $result->fetch_assoc())
+				$final[] = $row;
+		else die("Format not recognised");
+
+		return $final;
+	}
+}
+
+function execute($conn, $query, $options=[])
+{
+	/*
+	Returns the result of the query as a CELL, ROW, COLUMN or entire TABLE
+
+	$conn <= Connection object
+	$query <= query string to be executed
+	$options <= [
+		"args" => [ array of args to replace the ?'s ]
+		"force" => type to force; (CELL, ROW, COLUMN or TABLE)
+	]
+
+	*/
+
 	// Allows users to add a string and it gets turned into array ("Charlie" => ["Charlie"])
-	if (gettype($args) != "array") $args = [$args];
+	if (isset($options['args']) && gettype($options['args']) != "array") $options['args'] = [ $options['args'] ];
 
 	// prepares query
 	$stmt = $conn->prepare($query);
 	if (!$stmt) die ("Statement failed to prepare: " . $conn->error);
 	// execute query
-	if ($formats) $stmt->bind_param($formats, ...$args);
+	if (isset($options['args'])) $stmt->bind_param(format_args($options['args']), ...$options['args']);
 	$stmt->execute();
 
 	// gets result
 	$result = $stmt->get_result();
-	// proccesses result
+
+	// FORCE TYPE
+	if (isset($options['force'])) return format_result($result, $options['force']);
+	// DON'T FORCE TYPE
 	if ($result->num_rows == 1)
 		if ($result->field_count == 1)
 			// RETURN THE CELL
-			$final = $result->fetch_row()[0];
+			return format_result($result, "CELL");
 		else
 			// RETURN THE ROW
-			$final = $result->fetch_assoc();
-	else {
-		$final = [];
+			return format_result($result, "ROW");
+	elseif ($result->num_rows != 0)
 		if ($result->field_count == 1)
 			// RETURN THE COLUMN
-			while ($row = $result->fetch_row())
-				$final[] = $row[0];
-		else // RETURN THE TABLE
-			while ($row = $result->fetch_assoc())
-				$final[] = $row;
-	}
-	// returns result
-	return $final;
+			return format_result($result, "COLUMN");
+		else
+			// RETURN THE TABLE
+			return format_result($result, "TABLE");
 }
 
-function q(...$args) { return execute(...$args); }
+function q(...$args) { return execute(...$args); } // alias of execute
 
 function getCell($conn, $column, $table, $key, $value)
 {
@@ -80,6 +139,7 @@ function getCell($conn, $column, $table, $key, $value)
 	$stmt->close();
 	return $row[0];
 }
+
 function getRow($conn, $table, $conditions)
 {
 	/*
@@ -209,7 +269,7 @@ function row2HTML($conn, $table, $key, $value, $extra="")
 	$final .= "</table>";
 	return $final;
 }
-function table2HTML($conn, $query, $format, $arg)
+function table2HTML($conn, $query, ...$args)
 {
 	/*
 	PRINTS HTML REPRESENTATION OF A QUERY
@@ -221,10 +281,11 @@ function table2HTML($conn, $query, $format, $arg)
 	$stmt = $conn->prepare($query);
 	if (!$stmt) die ("Statement failed to prepare: " . $conn->error);
 	// execute query
-	if ($format) $stmt->bind_param($format, $arg);
+	if (count($args) > 0) $stmt->bind_param(format_args($args), ...$args);
 	$stmt->execute();
 	// get result
 	$result = $stmt->get_result();
+
 	echo "<table>";
 	// prints header
 	echo "<tr>\n";
@@ -247,11 +308,13 @@ function hasPerms($conn, $perm, $level)
 {
 	/*
 	CHECKS IF USER HAS PERMISSIONS
-	$perm <= name for permission ("members", "sessions", "payments")
+	$perm <= name for permission ("team", "sessions", "payments")
 	$level <= level of perm (0, 1, 2) (for none, view & edit respectively)
 	*/
-	$users_role = getCell($conn, "role", "employee", "name", $_SESSION['user']);
-	return getCell($conn, $perm, "role", "role", $users_role) >= $level;
+	$query = "SELECT * FROM `role`
+	WHERE `role` = (SELECT `role` FROM `employee` WHERE `name` = ?)";
+
+	return q($conn, $query, ['args' => $_SESSION['user']])[$perm] >= $level;
 }
 function updateRow($conn, $table, $conditions, $changes)
 {
@@ -319,6 +382,8 @@ function insertRow($conn, $table, $row)
 	$query = "INSERT INTO `$table` ($fields) VALUES ($values)";
 	// execute!
 	$conn->query($query);
+	//if ($conn->query($query) !== true)
+		//printf("Error: %s<br>", $conn->error);
 }
 function deleteRow($conn, $table, $conditions)
 {

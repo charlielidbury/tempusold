@@ -17,25 +17,24 @@ if ($_SERVER['REQUEST_METHOD'] == "POST")
 	if (!hasPerms($conn, "payments", 2))
 		header("Location: http://{$_SERVER['HTTP_HOST']}/permission_denied.php");
 
-	$employee = substr($_POST['submit'], 4);
-	unset($_POST['submit']);
-
-	// makes the payment
-	insertRow($conn, "payment", [
-		"date" => date("Y-m-d"),
-		"amount" => array_sum($_POST),
-		"payer" => $_SESSION['user'],
-		"payee" => $employee
-	]);
-
-	// udpates the shifts
-	$shifts = implode("','", array_keys($_POST));
-
-	execute($conn, "UPDATE `shift`
-	SET `wage` = LAST_INSERT_ID()
-	WHERE `employee` = '$employee'
-	AND `date` IN ('$shifts')");
+	foreach ($_POST as $employee => $amount)
+		insertRow($conn, "payment", [
+			"date" => date("Y-m-d"),
+			"amount" => $amount,
+			"payer" => $_SESSION['user'],
+			"payee" => $employee
+		]);
 }
+
+$outstanding_query = "SELECT
+	`name`,
+	`total_shift`.`earnt` - `total_payment`.`paid` AS `outstanding`
+FROM `employee`
+	JOIN (SELECT `employee`, ROUND(SUM( TIME_TO_SEC(`length`)*`rate`/3600 ), 2) AS `earnt` FROM `shift` GROUP BY `employee`) `total_shift`
+		ON `total_shift`.`employee` = `employee`.`name`
+	JOIN (SELECT `payee`, SUM(`amount`) AS `paid` FROM `payment` GROUP BY `payee`) `total_payment`
+		ON `total_payment`.`payee` = `employee`.`name`
+WHERE `total_shift`.`earnt` - `total_payment`.`paid` > 0";
 
 ?>
 <!DOCTYPE html>
@@ -51,40 +50,23 @@ if ($_SERVER['REQUEST_METHOD'] == "POST")
 		<h3><a href="/home/payments/">Payments</a></h3>
 
 		<h2>Create Payment</h2>
-		<table>
-			<tr>
-				<th>Employee</th>
-				<th>Outstanding</th>
-				<th>
-					<table>
-						<th>Date</th>
-						<th>Amount</th>
-						<th>Include</th>
-					</table>
-				</th>
-				<th>Actions</th>
-			</tr>
-			<?php foreach (getTable($conn, "SELECT Name, Outstanding FROM view_employee WHERE Outstanding > 0") as $employee_row): ?>
+		<form action="<?= "http://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}" ?>" method="POST">
+			<table>
 				<tr>
-				<form class="" action="<?="http://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}"?>" method="post">
-					<td><?= $employee_row['Name'] ?></td>
-					<td>£<?= $employee_row['Outstanding'] ?></td>
-					<td>
-						<table>
-							<?php foreach(getTable($conn, "SELECT *, ROUND(rate*TIME_TO_SEC(length)/3600, 2) as total FROM shift WHERE wage IS NULL AND employee = ? AND length IS NOT NULL", "s", $employee_row['Name']) as $shift_row): ?>
-								<tr>
-								<td><?= $shift_row['date'] ?></td>
-								<td>£<?= $shift_row['total'] ?></td>
-								<td><input type="checkbox" name="<?= $shift_row['date'] ?>" value="<?= $shift_row['total'] ?>"></td>
-								</tr>
-							<?php endforeach ?>
-						</table>
-					</td>
-					<td><input type="submit" name="submit" value="Pay <?= $employee_row['Name'] ?>"></td>
-				</form>
+					<th>Employee</th>
+					<th>Outstanding</th>
+					<th>Amount</th>
 				</tr>
-			<?php endforeach ?>
-		</table>
+				<?php foreach(q($conn, $outstanding_query, ['force' => "TABLE"]) as $employee): ?>
+					<tr>
+						<td><?= $employee['name'] ?></td>
+						<td><?= $employee['outstanding'] ?></td>
+						<td><input type="number" min="0" step="0.01" name=<?= $employee['name'] ?>></td>
+					</tr>
+				<?php endforeach; ?>
+			</table>
+			<input type="submit" value="Pay All">
+		</form>
 
 		<h2>Historic Payments</h2>
 		<?php table2HTML($conn, "SELECT * FROM `view_payment`"); ?>

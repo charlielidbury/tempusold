@@ -35,8 +35,12 @@ foreach ($row as $perm => $level)
 		<h3>Logged in as <?= $_SESSION["user"]; ?>:</h3>
 		<ul>
 			<li><a href="/home/team/view_user.php?user=<?= $_SESSION['user']; ?>">Profile</a></li>
-			<li><a href="/home/inbox.php">Inbox</a></li>
-			<li><a href="/home/my_sessions.php">Personal Sessions</a></li>
+			<li>
+				<a href="/home/my_sessions.php">
+					Personal Sessions
+					<?= q($conn, "SELECT CONCAT('(', SUM(1), ')') FROM invite WHERE accepted IS NULL AND employee = ?", [ 'args'=>[$_SESSION['user']] ]) ?>
+				</a>
+			</li>
 			<li><a href="/home/my_payments.php">Personal Payments</a></li>
 			<li><a href="/src/logout.php">Logout</a></li>
 		</ul>

@@ -15,6 +15,29 @@ if (!isset($_SESSION['user']))
 if ( (!hasPerms($conn, "team", 1)) && $_SESSION['user'] != $_GET['user'])
 	header("Location: http://{$_SERVER['HTTP_HOST']}/permission_denied.php");
 
+$user_data = q($conn, 'SELECT
+	COALESCE(`employee`.`rate`, 0) as `rate`,
+	`total_shift`.`hours` AS `hours`,
+	`total_shift`.`earnt` AS `earnt`,
+	`total_payment`.`paid` AS `paid`,
+	`total_shift`.`earnt` - `total_payment`.`paid` AS `outstanding`,
+	DATE_FORMAT(COALESCE(`total_shift`.`start`, DATE(NOW())), "%d/%m/%y") AS `join`,
+	`icon`,
+	`employee`.`role`,
+	`team`,
+	`sessions`,
+	`payments`
+FROM `employee`
+	LEFT JOIN `role` ON `role`.`role` = `employee`.`role`
+	LEFT JOIN (SELECT `employee`, ROUND(SUM( TIME_TO_SEC(`length`)*`rate`/3600 ), 2) as `earnt`, SEC_TO_TIME(SUM(TIME_TO_SEC(`length`))) AS `hours`, MIN(`date`) AS `start` FROM `shift` GROUP BY `employee`) `total_shift`
+		ON `total_shift`.`employee` = `employee`.`name`
+	LEFT JOIN (SELECT `payee`, SUM(`amount`) AS `paid` FROM `payment` GROUP BY `payee`) `total_payment`
+		ON `total_payment`.`payee` = `employee`.`name`
+WHERE `employee`.`name` = ?
+GROUP BY `employee`.`name`', ['args'=>$_GET['user']]);
+
+$roles = ['None', 'View', 'Edit'];
+
 ?>
 <!DOCTYPE html>
 <html>
@@ -33,12 +56,64 @@ if ( (!hasPerms($conn, "team", 1)) && $_SESSION['user'] != $_GET['user'])
 		<ul>
 			<li><a href="<?= "change_password.php?user={$_GET['user']}&redirect=http://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}" ?>">Change Password</a></li>
 		</ul>
-		<?php
-		// adds permissions to the table
-		$extra = '<tr><td>Permissions</td><td>';
-		$extra .= row2HTML($conn, "role", "role", getCell($conn, "role", "employee", "name", $_GET['user']));
-		$extra .= '</td></tr>';
-		echo row2HTML($conn, "view_employee", "name", $_GET['user'], $extra);
-		?>
+
+		<table>
+			<tr>
+				<th>Aspect</th>
+				<th>Value</th>
+			</tr>
+			<tr>
+				<td>Name</td>
+				<td><?= $_SESSION['user'] ?></td>
+			</tr>
+			<tr>
+				<td>Hourly Rate</td>
+				<td>£<?= $user_data['rate'] ?></td>
+			</tr>
+			<tr>
+				<td>Total Hours</td>
+				<td><?= $user_data['hours'] ?></td>
+			</tr>
+			<tr>
+				<td>Total Earnt</td>
+				<td>£<?= $user_data['earnt'] ?></td>
+			</tr>
+			<tr>
+				<td>Total Paid</td>
+				<td>£<?= $user_data['paid'] ?></td>
+			</tr>
+			<tr>
+				<td>Outstanding</td>
+				<td>£<?= $user_data['outstanding'] ?></td>
+			</tr>
+			<tr>
+				<td>Join Date</td>
+				<td><?= $user_data['join'] ?></td>
+			</tr>
+			<tr>
+				<td>Icon</td>
+				<td><img src="<?= $user_data['icon'] ?>" alt="<?= $_SESSION['user'] ?>'s PP"  width="256" height="256"></td>
+			</tr>
+			<tr>
+				<td>Permissions<br>(<?= $user_data['role'] ?>)</td>
+				<td>
+					<table>
+						<tr>
+							<td>Team</td>
+							<td><?= $roles[$user_data['team']] ?></td>
+						</tr>
+						<tr>
+							<td>Sessions</td>
+							<td><?= $roles[$user_data['sessions']] ?></td>
+						</tr>
+						<tr>
+							<td>Payments</td>
+							<td><?= $roles[$user_data['payments']] ?></td>
+						</tr>
+					</table>
+				</td>
+			</tr>
+		</table>
+
 	</body>
 </html>

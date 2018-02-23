@@ -162,14 +162,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') // update has been pressed
 		<form action="<?= "http://{$_SERVER["HTTP_HOST"]}{$_SERVER["REQUEST_URI"]}" ?>" method="POST">
 			<?php
 			// Current Invites
-			table2HTML($conn, "CALL sessionInvites(?)", "s", $session_data['date']);
+			table2HTML($conn, "CALL sessionInvites(?)", $session_data['date']);
 			// Invite Workers
-			foreach(getColumn($conn, "employee", "name") as $employee)
-				if (!getRow($conn, "invite", [
-					"employee" => $employee,
-					"session" => $session_data['date']
-				]))
-					printf('<input type="checkbox" name="%1$s" value="%1$s">%1$s<br>', $employee);
+			$invite_query = "SELECT name FROM employee LEFT JOIN invite ON employee = name AND session = ? WHERE session IS NULL";
+
+			foreach(q($conn, $invite_query, ['args'=>$session_data['date']]) as $employee)
+				printf('<input type="checkbox" name="%1$s" value="%1$s">%1$s<br>', $employee);
 			?>
 			<input type="submit" value="Invite Workers" name="submit">
 		</form>

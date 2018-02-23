@@ -36,10 +36,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') // update has been pressed
 	]);
 
 	// UPDATES CELLS IN `SHIFT`
-	execute($conn, "UPDATE `shift`
+	q($conn, "UPDATE `shift`
 	SET `wage` = LAST_INSERT_ID()
-	WHERE `employee` = '{$_GET['user']}'
-	AND `date` IN ('$shifts')");
+	WHERE `employee` = ?
+	AND `date` IN ('$shifts')", "s", $_GET['user']);
 
 	header("Location: {$_GET['redirect']}");
 }

@@ -19,6 +19,6 @@ include "{$_SERVER['DOCUMENT_ROOT']}/src/db.php";
 		<h2><a href="/home/">Home</a></h2>
 		<h3><a href="/home/sessions/">Sessions</a></h3>
 
-		<?php table2HTML($conn, "CALL userPayments(?)", "s", $_SESSION['user']); ?>
+		<?php table2HTML($conn, "CALL userPayments(?)", $_SESSION['user']); ?>
 	</body>
 </html>
