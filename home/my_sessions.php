@@ -68,39 +68,41 @@ ORDER BY `shift`.`date` DESC";
 		<h3><a href="/home/sessions/">Sessions</a></h3>
 
 		<!-- UPCOMING SESSIONS -->
-		<h1>Upcoming Sessions</h1>
-		<table>
-			<tr>
-				<th>Date</th>
-				<th>Organiser</th>
-				<th>Start</th>
-				<th>End</th>
-				<th>Confirmed Colleagues</th>
-				<th>Invite</th>
-			</tr>
-
-			<?php foreach($upcoming_data as $session): ?>
-
+		<?php if (sizeof($upcoming_data)): ?>
+			<h1>Upcoming Sessions</h1>
+			<table>
 				<tr>
-					<td><?= $session['date'] ?></td>
-					<td><?= $session['organiser'] ?></td>
-					<td><?= $session['start'] ?></td>
-					<td><?= $session['end'] ?></td>
-					<td><?= $session['others'] ?></td>
-					<td>
-						<?php if (gettype($session['accepted']) == "integer") { ?>
-							<a href="<?= "http://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}?session={$session['date']}" ?>">
-								<?php if ($session['accepted']) echo "Unaccept"; else echo "Undecline"; ?>
-							</a>
-						<?php } else { ?>
-							<a href="<?= "http://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}?session={$session['date']}&response=1" ?>">Accept</a>
-							<a href="<?= "http://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}?session={$session['date']}&response=0" ?>">Decline</a>
-						<?php } ?>
-					</td>
+					<th>Date</th>
+					<th>Organiser</th>
+					<th>Start</th>
+					<th>End</th>
+					<th>Confirmed Colleagues</th>
+					<th>Invite</th>
 				</tr>
 
-			<?php endforeach; ?>
-		</table>
+				<?php foreach($upcoming_data as $session): ?>
+
+					<tr>
+						<td><?= $session['date'] ?></td>
+						<td><?= $session['organiser'] ?></td>
+						<td><?= $session['start'] ?></td>
+						<td><?= $session['end'] ?></td>
+						<td><?= $session['others'] ?></td>
+						<td>
+							<?php if (gettype($session['accepted']) == "integer") { ?>
+								<a href="<?= "http://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}?session={$session['date']}" ?>">
+									<?php if ($session['accepted']) echo "Unaccept"; else echo "Undecline"; ?>
+								</a>
+							<?php } else { ?>
+								<a href="<?= "http://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}?session={$session['date']}&response=1" ?>">Accept</a>
+								<a href="<?= "http://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}?session={$session['date']}&response=0" ?>">Decline</a>
+							<?php } ?>
+						</td>
+					</tr>
+
+				<?php endforeach; ?>
+			</table>
+		<?php endif; ?>
 
 		<!-- SESSION ARCHIVE -->
 		<h1>Session Archive</h1>

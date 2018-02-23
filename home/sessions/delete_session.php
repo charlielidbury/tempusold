@@ -9,7 +9,6 @@ if (!isset($_SESSION['user']))
 include "{$_SERVER['DOCUMENT_ROOT']}/src/db.php";
 
 // if custom user the logged in user must have perms to edit member's details
-$user = $_GET['user'];
 if (!hasPerms($conn, "sessions", 2))
 	header("Location: {$_SERVER['HTTP_HOST']}/permission_denied.php");
 
