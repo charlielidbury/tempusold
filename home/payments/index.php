@@ -34,7 +34,7 @@ FROM `employee`
 		ON `total_shift`.`employee` = `employee`.`name`
 	JOIN (SELECT `payee`, SUM(`amount`) AS `paid` FROM `payment` GROUP BY `payee`) `total_payment`
 		ON `total_payment`.`payee` = `employee`.`name`
-WHERE `total_shift`.`earnt` - `total_payment`.`paid` > 0";
+WHERE `total_shift`.`earnt` - `total_payment`.`paid` != 0";
 
 ?>
 <!DOCTYPE html>

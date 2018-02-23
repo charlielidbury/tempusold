@@ -38,7 +38,7 @@ foreach ($row as $perm => $level)
 			<li>
 				<a href="/home/my_sessions.php">
 					Personal Sessions
-					<?= q($conn, "SELECT CONCAT('(', SUM(1), ')') FROM invite WHERE accepted IS NULL AND employee = ?", [ 'args'=>[$_SESSION['user']] ]) ?>
+					(<?= q($conn, "SELECT SUM(1) FROM invite WHERE accepted IS NULL AND employee = ?", [ 'args'=>[$_SESSION['user']] ]) ?>)
 				</a>
 			</li>
 			<li><a href="/home/my_payments.php">Personal Payments</a></li>
