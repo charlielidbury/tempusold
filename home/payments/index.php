@@ -61,7 +61,7 @@ WHERE `total_shift`.`earnt` - `total_payment`.`paid` != 0";
 					<tr>
 						<td><?= $employee['name'] ?></td>
 						<td><?= $employee['outstanding'] ?></td>
-						<td><input type="number" min="0" step="0.01" name=<?= $employee['name'] ?>></td>
+						<td><input type="number" step="0.01" name=<?= $employee['name'] ?>></td>
 					</tr>
 				<?php endforeach; ?>
 			</table>
