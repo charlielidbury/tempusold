@@ -12,9 +12,11 @@ include "{$_SERVER['DOCUMENT_ROOT']}/src/db.php";
 if (!hasPerms($conn, "sessions", 2))
 	header("Location: {$_SERVER['HTTP_HOST']}/permission_denied.php");
 
-// ACTUALLY DELETES THE ROW
-if (isset($_GET['session']))
+// ACTUALLY DELETES THE ROW AND CHANNEL
+if (isset($_GET['session'])) {
 	deleteRow($conn, "session", ["date" => $_GET['session']]);
+	discoBot("deleteChannel", $_GET['session']);
+}
 
 // redirect back
 if (isset($_GET['redirect']))

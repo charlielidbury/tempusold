@@ -10,6 +10,37 @@ if ($conn->connect_error)
 	die ("Connection failed: " . $conn->connect_error);
 }
 
+function discoBot(...$cmds_or_args)
+{
+	/*
+	action <= "sendInvite" OR [ ["sendInvite", "2018-02-25", "Charlie"] ]
+	args <= "2018-23-25", "Charlie" OR NULL
+
+	actions:
+		~ sendAllInvites = (client) => { ... }
+		~ sendInvite = (client, date, user) => { ... }
+		~ createChannel = (client, date) => { ... }
+		~ deleteChannel = (client, date) => { ... }
+		~ populateChannel = (client, date) => { ... }
+		~ addUser = (client, date, user) => { ... }
+	*/
+
+	if (gettype($cmds_or_args[0]) != "array")
+		// if a single command is passed
+		$cmds_or_args = [$cmds_or_args];
+
+	$string = json_encode($cmds_or_args);
+
+	$ch = curl_init("http://localhost:3000");
+	curl_setopt($ch, CURLOPT_POST, true);
+	curl_setopt($ch, CURLOPT_POSTFIELDS, $string);
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+	curl_setopt($ch, CURLOPT_TIMEOUT, 1);
+
+	curl_exec($ch);
+	curl_close($ch);
+}
+
 function format_args($args)
 {
 	/*

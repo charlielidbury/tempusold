@@ -12,10 +12,11 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") die(var_dump($_POST));
 if (isset($_GET['session']))
 {
 	// responds to invite
-	if (isset($_GET['response']))
+	if (isset($_GET['response'])) {
 		q($conn, "UPDATE `invite` SET `received` = NOW(), `accepted` = ? WHERE `session` = ? AND `employee` = ?",
 			[ 'args' => [$_GET['response'], $_GET['session'], $_SESSION['user']] ]);
-	else
+		discoBot("addUser", $_GET['session'], $_SESSION['user']);
+	} else
 		q($conn, "UPDATE `invite` SET `received` = NULL, `accepted` = NULL WHERE `session` = ? AND `employee` = ?",
 			[ 'args' => [$_GET['session'], $_SESSION['user']] ]);
 

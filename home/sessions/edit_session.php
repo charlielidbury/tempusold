@@ -68,13 +68,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') // update has been pressed
 		$shift_data = getTable($conn, $query, "s", $_GET['session']);
 	}
 	elseif ($_POST['submit'] == "Invite Workers")
-	{
+	{ // invites the poeple
 		unset($_POST['submit']);
 		foreach ($_POST as $employee)
+		{
+			// puts the invites into the db
 			insertRow($conn, "invite", [
 				"session" => $session_data['date'],
 				"employee" => $employee
 			]);
+
+			// invites them on discord
+			discoBot("sendInvite", $session_data['date'], $employee);
+		}
 	}
 	elseif (isset($_POST['employee']))
 		deleteRow($conn, "invite", [
@@ -111,7 +117,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') // update has been pressed
 				</tr>
 				<tr>
 					<td>Date</td>
-					<td><input type="date" name="date" value=<?= $session_data['date']; ?>></td>
+					<td><?= $session_data['date']; ?></td>
 				</tr>
 				<tr>
 					<td>Organiser</td>

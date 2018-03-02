@@ -18,6 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') // update has been pressed
 	$employees = getColumn($conn, "employee", "name");
 	$invites = [];
 	$row = [];
+	$disco_cmds = []; // list of commands to be sent to the bot
 
 	// sorts $_POST into $invites (invite details) and $row (session details)
 	unset($_POST['submit']);
@@ -32,13 +33,23 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') // update has been pressed
 	// Adds organiser & inserts the session
 	$row['organiser'] = $_SESSION['user'];
 	insertRow($conn, "session", $row);
+	$disco_cmds[] = ["createChannel", $row['date']];
 
 	// invites the poeple
 	foreach ($invites as $employee)
+	{
+		// puts the invites into the db
 		insertRow($conn, "invite", [
 			"session" => $row['date'],
 			"employee" => $employee
 		]);
+
+		// invites them on discord
+		$disco_cmds[] = ["sendInvite", $row['date'], $employee];
+	}
+
+	// sends off disco commands
+	discoBot(...$disco_cmds);
 
 	// Redirects
 	if (isset($_GET['redirect']))
