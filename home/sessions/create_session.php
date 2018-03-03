@@ -15,44 +15,27 @@ if (!hasPerms($conn, "sessions", 2))
 if ($_SERVER['REQUEST_METHOD'] == 'POST') // update has been pressed
 {
 	// INSERT ROW
-	$employees = getColumn($conn, "employee", "name");
-	$invites = [];
+	$employees = q($conn, "SELECT name FROM employee");
 	$row = [];
 	$disco_cmds = []; // list of commands to be sent to the bot
 
 	// sorts $_POST into $invites (invite details) and $row (session details)
-	unset($_POST['submit']);
-	foreach($_POST as $field => $value)
-		if (in_array($value, $employees))
-			// field is an employee
-			$invites[] = $value;
-		elseif ($value !== "")
-			// field is date/start/end
-			$row[$field] = $value;
+	$row = $_POST;
+	unset($row['submit']);
 
 	// Adds organiser & inserts the session
 	$row['organiser'] = $_SESSION['user'];
 	insertRow($conn, "session", $row);
-	$disco_cmds[] = ["createChannel", $row['date']];
+	discoBot("createChannel", $row['date']); // makes the disco channel
 
-	// invites the poeple
-	foreach ($invites as $employee)
-	{
-		// puts the invites into the db
-		insertRow($conn, "invite", [
-			"session" => $row['date'],
-			"employee" => $employee
-		]);
-
-		// invites them on discord
-		$disco_cmds[] = ["sendInvite", $row['date'], $employee];
-	}
-
-	// sends off disco commands
-	discoBot(...$disco_cmds);
+	$extra = "";
+	if (!(!isset($_GET) && sizeof($_GET) > 0))
+		$extra = "&".http_build_query($_GET);
 
 	// Redirects
-	if (isset($_GET['redirect']))
+	if ($_POST['submit'] == "Create & Invite")
+		header("Location: invite_people.php?session=$_POST[date]$extra");
+	elseif (isset($_GET['redirect']))
 		header("Location: {$_GET['redirect']}");
 	else
 		header("Location: {$_SERVER['HTTP_HOST']}");
@@ -78,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') // update has been pressed
 
 		<p id="required">Required Fields</p>
 
-		<form action="create_session.php?redirect=<?= $_GET['redirect']; ?>" method="POST">
+		<form action="<?= "http://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]" ?>" method="POST">
 			<table>
 				<tr>
 					<td id="required">Date</td>
@@ -94,12 +77,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') // update has been pressed
 				</tr>
 			</table>
 
-			<h3>Invite People</h3>
-			<?php
-			foreach(getColumn($conn, "employee", "name") as $employee)
-				printf('<input type="checkbox" name="%1$s" value="%1$s">%1$s<br>', $employee);
-			?>
-
+			<input type="submit" value="Create & Invite" name="submit" />
+			<br>
 			<input type="submit" value="Create Session" name="submit" />
 		</form>
 	</body>

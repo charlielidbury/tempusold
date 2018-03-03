@@ -23,7 +23,8 @@ SELECT
 	CONCAT(
 		"<a href='delete_session.php?session=", `session`.`date`, "&redirect=index.php'>Cancel</a>|",
 		"<a href='edit_session.php?session=", `session`.`date`, "&redirect=index.php'>Edit</a>|",
-		"<a href='finish_session.php?session=", `session`.`date`, "&redirect=../payments/index.php'>Finish</a>"
+		"<a href='finish_session.php?session=", `session`.`date`, "&redirect=../payments/index.php'>Finish</a>|",
+		"<a href='invite_people.php?session=", `session`.`date`, "&redirect=index.php'>Invite</a>"
 	) AS `Actions`
 FROM `session`
 	LEFT JOIN `shift` ON `shift`.`date` = `session`.`date`

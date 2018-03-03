@@ -69,6 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') // update has been pressed
 	}
 	elseif ($_POST['submit'] == "Invite Workers")
 	{ // invites the poeple
+		$disco_cmds = [];
 		unset($_POST['submit']);
 		foreach ($_POST as $employee)
 		{
@@ -79,8 +80,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') // update has been pressed
 			]);
 
 			// invites them on discord
-			discoBot("sendInvite", $session_data['date'], $employee);
+			$disco_cmds[] = ["sendInvite", $session_data['date'], $employee];
 		}
+		discoBot(...$disco_cmds);
 	}
 	elseif (isset($_POST['employee']))
 		deleteRow($conn, "invite", [
@@ -108,6 +110,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') // update has been pressed
 		?>	</ul>
 
 		<!-- CHANGE SESSION DETAILS -->
+		<!-- ACTIONS -->
+		<ul>
+			<li><a href="<?= "delete_session.php?session={$_GET['session']}&redirect={$_GET['redirect']}" ?>">Delete Session</a></li>
+			<li><a href="<?= "invite_people.php?session={$_GET['session']}&redirect={$_GET['redirect']}" ?>">Invite People</a></li>
+		</ul>
 		<h3>Details</h3>
 		<form action="<?= "http://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]" ?>" method="POST">
 			<table>
@@ -166,20 +173,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') // update has been pressed
 		<!-- INVITES -->
 		<h3>Invites</h3>
 		<form action="<?= "http://{$_SERVER["HTTP_HOST"]}{$_SERVER["REQUEST_URI"]}" ?>" method="POST">
-			<?php
-			// Current Invites
-			table2HTML($conn, "CALL sessionInvites(?)", $session_data['date']);
-			// Invite Workers
-			$invite_query = "SELECT name FROM employee LEFT JOIN invite ON employee = name AND session = ? WHERE session IS NULL";
-
-			foreach(q($conn, $invite_query, ['args'=>$session_data['date']]) as $employee)
-				printf('<input type="checkbox" name="%1$s" value="%1$s">%1$s<br>', $employee);
-			?>
-			<input type="submit" value="Invite Workers" name="submit">
+			<?php table2HTML($conn, "CALL sessionInvites(?)", $session_data['date']); ?>
 		</form>
-		<!-- Delete button -->
-		<a href="<?= "delete_session.php?session={$_GET['session']}&redirect={$_GET['redirect']}" ?>">
-			Delete Session
-		</a>
 	</body>
 </html>
