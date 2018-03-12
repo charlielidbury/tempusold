@@ -21,6 +21,43 @@ foreach ($row as $perm => $level)
 			"payments" => "<a href='/home/payments'>Manage Payments</a>"
 		][$perm];
 
+$upcoming_query = <<<EOT
+SELECT
+	DATE_FORMAT(`session`.`date`, "%d/%m/%y") AS `Session`,
+	CONCAT(
+		"<a href='sessions/delete_session.php?session=", `session`.`date`, "&redirect=index.php'>Cancel</a>|",
+		"<a href='sessions/edit_session.php?session=", `session`.`date`, "&redirect=index.php'>Edit</a>|",
+		"<a href='sessions/finish_session.php?session=", `session`.`date`, "&redirect=../payments/index.php'>Finish</a>|",
+		"<a href='sessions/invite_people.php?session=", `session`.`date`, "&redirect=index.php'>Invite</a>"
+	) AS `Actions`
+FROM `session`
+	LEFT JOIN (SELECT date, COUNT(*) AS shifts FROM shift GROUP BY date) s ON s.date = session.date
+	LEFT JOIN (SELECT session, COUNT(*) AS invites FROM invite GROUP BY session) i ON i.session = session.date
+WHERE COALESCE(i.invites, 0) > COALESCE(s.shifts, 0)
+GROUP BY
+	`session`.`date`,
+	`session`.`organiser`,
+	`session`.`start`,
+	`session`.`end`
+ORDER BY `session`.`date` ASC
+EOT;
+
+$query = <<<EOT
+SELECT
+	COUNT(*)
+FROM `session`
+	LEFT JOIN (SELECT date, COUNT(*) AS shifts FROM shift GROUP BY date) s ON s.date = session.date
+	LEFT JOIN (SELECT session, COUNT(*) AS invites FROM invite GROUP BY session) i ON i.session = session.date
+WHERE COALESCE(i.invites, 0) > COALESCE(s.shifts, 0)
+GROUP BY
+	`session`.`date`,
+	`session`.`organiser`,
+	`session`.`start`,
+	`session`.`end`
+ORDER BY `session`.`date` ASC
+EOT;
+
+$render_upcoming = q($conn, $query);
 ?>
 <!DOCTYPE html>
 <html>
@@ -32,7 +69,13 @@ foreach ($row as $perm => $level)
 	<body>
 		<h1><a href="/">Tempus</a></h1>
 		<h2><a href="/home/">Home</a></h2>
-		<h3>Logged in as <?= $_SESSION["user"]; ?>:</h3>
+
+		<?php
+		if ($render_upcoming)
+			{ echo "<h1>Quick Actions</h1>"; table2HTML($conn, $upcoming_query); }
+		?>
+
+		<h1>Logged in as <?= $_SESSION["user"]; ?>:</h1>
 		<ul>
 			<li><a href="/home/team/view_user.php?user=<?= $_SESSION['user']; ?>">Profile</a></li>
 			<li>
@@ -45,7 +88,7 @@ foreach ($row as $perm => $level)
 			<li><a href="/src/logout.php">Logout</a></li>
 		</ul>
 		<?php if (count($perms) > 0): ?>
-		<h3>Admin Actions:</h3>
+		<h1>Admin Actions:</h1>
 
 		<ul><?php
 			foreach ($perms as $perm)
