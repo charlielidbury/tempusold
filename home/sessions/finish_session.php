@@ -15,19 +15,29 @@ if (!hasPerms($conn, "sessions", 2))
 if ($_SERVER['REQUEST_METHOD'] == "POST")
 {
 	foreach ($_POST as $employee => $length)
-		insertRow($conn, "shift", [
-			"date" => $_GET['session'],
-			"employee" => $employee,
-			"length" => $length,
-			"rate" => q($conn, "SELECT rate FROM employee WHERE name = ?", ['args'=>$employee])
-		]);
+		if ($length !== "on")
+			insertRow($conn, "shift", [
+				"date" => $_GET['session'],
+				"employee" => $employee,
+				"length" => $length,
+				"rate" => q($conn, "SELECT rate FROM employee WHERE name = ?", ['args'=>$employee])
+			]);
 
 	// redirect back
 	if (isset($_GET['redirect']))
 		header("Location: {$_GET['redirect']}");
 }
 
-$employees = q($conn, "SELECT employee FROM invite WHERE session = ? AND accepted = 1",
+$employees_query = <<<EOT
+SELECT invite.employee
+FROM invite
+	LEFT JOIN shift ON shift.employee = invite.employee AND shift.date = invite.session
+WHERE session = "2018-03-24"
+	AND accepted = 1
+	AND shift.employee IS NULL
+EOT;
+
+$employees = q($conn, $employees_query,
 	['args'=>$_GET['session'], 'force'=>'COLUMN']);
 
 $duration = q($conn, "SELECT SEC_TO_TIME(TIME_TO_SEC(`end`)-TIME_TO_SEC(`start`)) FROM session WHERE `date` = ?",
@@ -53,11 +63,14 @@ $duration = q($conn, "SELECT SEC_TO_TIME(TIME_TO_SEC(`end`)-TIME_TO_SEC(`start`)
 				<tr>
 					<th>Employee</th>
 					<th>Hours Worked</th>
+					<th>Exclude</th>
 				</tr>
 				<?php foreach($employees as $employee): ?>
 					<tr>
 						<td><?= $employee ?></td>
 						<td><input type="time" name="<?= $employee ?>" value="<?= $duration ?>"></td>
+						<!-- When checked this overrides the time and stop the time from being added -->
+						<td><input type="checkbox" name="<?= $employee ?>"></td>
 					</tr>
 				<?php endforeach ?>
 			</table>

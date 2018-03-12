@@ -309,6 +309,7 @@ function table2HTML($conn, $query, ...$args)
 	$format <= data type of $arg (s=string, i=int, d=double, b=blob)
 	$arg <= arg to be passed to the query in place of ?
 	*/
+
 	$stmt = $conn->prepare($query);
 	if (!$stmt) die ("Statement failed to prepare: " . $conn->error);
 	// execute query

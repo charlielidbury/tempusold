@@ -113,6 +113,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') // update has been pressed
 		<!-- ACTIONS -->
 		<ul>
 			<li><a href="<?= "delete_session.php?session={$_GET['session']}&redirect={$_GET['redirect']}" ?>">Delete Session</a></li>
+			<li><a href="<?= "finish_session.php?session={$_GET['session']}&redirect={$_GET['redirect']}" ?>">Finish Session</a></li>
 			<li><a href="<?= "invite_people.php?session={$_GET['session']}&redirect={$_GET['redirect']}" ?>">Invite People</a></li>
 		</ul>
 		<h3>Details</h3>

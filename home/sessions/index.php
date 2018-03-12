@@ -16,9 +16,9 @@ SELECT
 	CONCAT("<a href='../team/view_user.php?user=", `session`.`organiser`, "'>", `session`.`organiser`, "</a>") AS `Organiser`,
 	TIME_FORMAT(`session`.`start`, "%H:%i") AS `Start`,
 	TIME_FORMAT(`session`.`end`, "%H:%i") AS `End`,
-	(SELECT GROUP_CONCAT(`i`.`employee`) FROM `invite` `i`
-		WHERE `i`.`session` = `session`.`date`
-		  AND `i`.`accepted` = 1
+	(SELECT GROUP_CONCAT(`ii`.`employee`) FROM `invite` `ii`
+		WHERE `ii`.`session` = `session`.`date`
+		  AND `ii`.`accepted` = 1
 	) AS `Confirmed`,
 	CONCAT(
 		"<a href='delete_session.php?session=", `session`.`date`, "&redirect=index.php'>Cancel</a>|",
@@ -27,8 +27,9 @@ SELECT
 		"<a href='invite_people.php?session=", `session`.`date`, "&redirect=index.php'>Invite</a>"
 	) AS `Actions`
 FROM `session`
-	LEFT JOIN `shift` ON `shift`.`date` = `session`.`date`
-WHERE `shift`.`date` IS NULL
+	LEFT JOIN (SELECT date, COUNT(*) AS shifts FROM shift GROUP BY date) s ON s.date = session.date
+	LEFT JOIN (SELECT session, COUNT(*) AS invites FROM invite GROUP BY session) i ON i.session = session.date
+WHERE COALESCE(i.invites, 0) > COALESCE(s.shifts, 0)
 GROUP BY
 	`session`.`date`,
 	`session`.`organiser`,
@@ -58,6 +59,23 @@ GROUP BY
 ORDER BY `session`.`date` DESC
 EOT;
 
+$query = <<<EOT
+SELECT
+	COUNT(*)
+FROM `session`
+	LEFT JOIN (SELECT date, COUNT(*) AS shifts FROM shift GROUP BY date) s ON s.date = session.date
+	LEFT JOIN (SELECT session, COUNT(*) AS invites FROM invite GROUP BY session) i ON i.session = session.date
+WHERE COALESCE(i.invites, 0) > COALESCE(s.shifts, 0)
+GROUP BY
+	`session`.`date`,
+	`session`.`organiser`,
+	`session`.`start`,
+	`session`.`end`
+ORDER BY `session`.`date` ASC
+EOT;
+
+$render_upcoming = q($conn, $query);
+
 ?>
 <!DOCTYPE html>
 <html>
@@ -75,7 +93,7 @@ EOT;
 			<li><a href="create_session.php?redirect=index.php">Create Session</a></li>
 		</ul>
 
-		<?php if (q($conn, "SELECT SUM(1) FROM session LEFT JOIN shift ON shift.date = session.date WHERE shift.date IS NULL"))
+		<?php if ($render_upcoming)
 			{ echo "<h1>Upcoming Sessions</h1>"; table2HTML($conn, $upcoming_query); } ?>
 
 
