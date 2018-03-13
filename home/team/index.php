@@ -69,9 +69,9 @@ GROUP BY `employee`.`name`';
 					<td><?= $employee['join'] ?></td>
 					<td><img src="<?=$employee['icon']?>" alt="<?=$employee['name']?>'s icon'" width="128" height="128"></td>
 					<td>
-						<a href="view_user.php?user=<?= $employee['name'] ?>">View</a>
+						<a href="view_user.php?user=<?= $employee['name'] ?>&redirect=index.php">View</a>
 						<br>
-						<a href="edit_user.php?user=<?= $employee['name'] ?>">Edit</a>
+						<a href="edit_user.php?user=<?= $employee['name'] ?>&redirect=index.php">Edit</a>
 					</td>
 				</tr>
 			<?php endforeach; ?>
