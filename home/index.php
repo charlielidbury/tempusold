@@ -57,7 +57,20 @@ GROUP BY
 ORDER BY `session`.`date` ASC
 EOT;
 
-$render_upcoming = q($conn, $query);
+if (hasPerms($conn, "sessions", 2))
+	$render_upcoming = q($conn, $query);
+else
+	$render_upcoming = false;
+
+$leaderboard_query = <<<EOT
+SELECT employee AS `Employee`,
+	TIME_FORMAT(SEC_TO_TIME(AVG(TO_SECONDS(received) - TO_SECONDS(sent))), "%H:%i")
+		AS `Avg. Response Time (HH:MM)`
+FROM invite
+WHERE TO_SECONDS(received) - TO_SECONDS(sent) > 0
+GROUP BY employee;
+EOT;
+
 ?>
 <!DOCTYPE html>
 <html>
@@ -70,11 +83,11 @@ $render_upcoming = q($conn, $query);
 		<h1><a href="/">Tempus</a></h1>
 		<h2><a href="/home/">Home</a></h2>
 
-		<?php
-		if ($render_upcoming)
-			{ echo "<h1>Quick Actions</h1>"; table2HTML($conn, $upcoming_query); }
-		?>
+		<!-- INVITE LEADERBOARD -->
+		<h1>Invite Leaderboard</h1>
+		<?php table2HTML($conn, $leaderboard_query) ?>
 
+		<!-- USER ACTIONS -->
 		<h1>Logged in as <?= $_SESSION["user"]; ?>:</h1>
 		<ul>
 			<li><a href="/home/team/view_user.php?user=<?= $_SESSION['user']; ?>">Profile</a></li>
@@ -87,13 +100,21 @@ $render_upcoming = q($conn, $query);
 			<li><a href="/home/my_payments.php">Personal Payments</a></li>
 			<li><a href="/src/logout.php">Logout</a></li>
 		</ul>
-		<?php if (count($perms) > 0): ?>
-		<h1>Admin Actions:</h1>
 
-		<ul><?php
-			foreach ($perms as $perm)
-				printf("<li>%s</li>", $perm);
-		?></ul>
+		<!-- QUICK ACTIONS -->
+		<?php
+		if ($render_upcoming)
+			{ echo "<h1>Quick Actions</h1>"; table2HTML($conn, $upcoming_query); }
+		?>
+
+		<!-- ADMIN ACTIONS -->
+		<?php if (count($perms) > 0): ?>
+			<h1>Admin Actions:</h1>
+
+			<ul><?php
+				foreach ($perms as $perm)
+					printf("<li>%s</li>", $perm);
+			?></ul>
 		<?php endif ?>
 	</body>
 </html>
