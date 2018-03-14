@@ -14,6 +14,7 @@ if (!hasPerms($conn, "sessions", 2))
 
 if ($_SERVER['REQUEST_METHOD'] == "POST")
 {
+	// Inserts the rows
 	foreach ($_POST as $employee => $length)
 		if ($length !== "on")
 			insertRow($conn, "shift", [
@@ -22,6 +23,9 @@ if ($_SERVER['REQUEST_METHOD'] == "POST")
 				"length" => $length,
 				"rate" => q($conn, "SELECT rate FROM employee WHERE name = ?", ['args'=>$employee])
 			]);
+
+	// Updates the discord
+	discoBot("deleteChannel", $_GET['session'])
 
 	// redirect back
 	if (isset($_GET['redirect']))

@@ -13,10 +13,12 @@ if (isset($_GET['session']))
 {
 	// responds to invite
 	if (isset($_GET['response'])) {
+		// Invite replied to
 		q($conn, "UPDATE `invite` SET `received` = NOW(), `accepted` = ? WHERE `session` = ? AND `employee` = ?",
 			[ 'args' => [$_GET['response'], $_GET['session'], $_SESSION['user']] ]);
 		discoBot("addUser", $_GET['session'], $_SESSION['user']);
 	} else
+		// Invite unreplied to
 		q($conn, "UPDATE `invite` SET `received` = NULL, `accepted` = NULL WHERE `session` = ? AND `employee` = ?",
 			[ 'args' => [$_GET['session'], $_SESSION['user']] ]);
 

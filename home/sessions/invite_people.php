@@ -17,22 +17,26 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') // update has been pressed
 	// Records whether or not to mark as accepted
 	$accept = $_POST['submit'] == "Mark as Accepted";
 	unset($_POST['submit']);
+
 	// Records invite message
 	$invite_message = $_POST['invite_message'];
 	unset($_POST['invite_message']);
+
 	// Remaining data is just the invites left
 	$invites = array_values($_POST);
 
 	// invites the people
-	if ($accept)
+	$disco_cmds = []; // list of commands to be sent to the bot
+	if ($accept) {
 		foreach ($invites as $employee)
 			insertRow($conn, "invite", [
 				"session" => $_GET['session'],
 				"employee" => $employee,
 				"accepted" => 1
 			]);
-	else {
-		$disco_cmds = []; // list of commands to be sent to the bot
+			// invites them on discord
+			$disco_cmds[] = ["addUser", $_GET['session'], $employee];
+	} else {
 		foreach ($invites as $employee)
 		{
 			// puts the invites into the db
@@ -43,8 +47,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') // update has been pressed
 			// invites them on discord
 			$disco_cmds[] = ["sendInvite", $_GET['session'], $employee, $invite_message];
 		}
-		discoBot(...$disco_cmds); // sends off disco commands
 	}
+	discoBot(...$disco_cmds); // sends off disco commands
 
 	// Redirects
 	if (isset($_GET['redirect']))
