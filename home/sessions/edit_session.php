@@ -93,88 +93,99 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') // update has been pressed
 
 ?>
 <!DOCTYPE html>
-<html>
+<html lang="en">
 	<head>
 		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+		<!-- Bootstrap CSS -->
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+		<link rel="stylesheet" href="/style.css">
+
 		<title>Tempus - Edit Session</title>
-		<link rel="stylesheet" href="/css/style.css"/>
 	</head>
 	<body>
-		<h1><a href="/">Tempus</a></h1>
-		<h2><a href="/home">Home</a></h2>
-		<h3><a href="/home/sessions">Sessions</a></h3>
-		<h4><a href="/home/sessions/edit_session.php">Edit Session</a></h4>
+		<div class="container">
+		    <?php include "{$_SERVER['DOCUMENT_ROOT']}/header.php"; ?>
 
-		<ul> <?php
-			foreach ($errors as $error) printf("<li>%s</li>\n", $error);
-		?>	</ul>
+			<ul> <?php
+				foreach ($errors as $error) printf("<li>%s</li>\n", $error);
+			?>	</ul>
 
-		<!-- CHANGE SESSION DETAILS -->
-		<!-- ACTIONS -->
-		<ul>
-			<li><a href="<?= "delete_session.php?session={$_GET['session']}&redirect={$_GET['redirect']}" ?>">Delete Session</a></li>
-			<li><a href="<?= "finish_session.php?session={$_GET['session']}&redirect={$_GET['redirect']}" ?>">Finish Session</a></li>
-			<li><a href="<?= "invite_people.php?session={$_GET['session']}&redirect={$_GET['redirect']}" ?>">Invite People</a></li>
-		</ul>
-		<h3>Details</h3>
-		<form action="<?= "http://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]" ?>" method="POST">
-			<table>
-				<tr>
-					<th>Aspect</th>
-					<th>Value</th>
-				</tr>
-				<tr>
-					<td>Date</td>
-					<td><?= $session_data['date']; ?></td>
-				</tr>
-				<tr>
-					<td>Organiser</td>
-					<td><?= $session_data['organiser']; ?></td>
-				</tr>
-				<tr>
-					<td>Start</td>
-					<td><input type="time" name="start" value="<?= $session_data['start']; ?>"></td>
-				</tr>
-				<tr>
-					<td>End</td>
-					<td><input type="time" name="end" value="<?= $session_data['end']; ?>"></td>
-				</tr>
-			</table>
-			<input type="submit" value="Update Details" name="submit" />
-		</form>
-		<!-- CHANGE SESSION WORKERS -->
-		<h3>Workers</h3>
-		<!-- Current shifts -->
-		<form action="<?= "http://{$_SERVER["HTTP_HOST"]}{$_SERVER["REQUEST_URI"]}" ?>" method="POST">
-			<table>
-				<tr>
-					<th>Employee</th>
-					<th>Hours Worked</th>
-					<th>Remove</th>
-				</tr>
-				<?php foreach($shift_data as $shift): ?>
+			<!-- CHANGE SESSION DETAILS -->
+			<!-- ACTIONS -->
+			<h3>Actions</h3>
+			<ul>
+				<li><a href="<?= "delete_session.php?session={$_GET['session']}&redirect={$_GET['redirect']}" ?>">Delete Session</a></li>
+				<li><a href="<?= "finish_session.php?session={$_GET['session']}&redirect={$_GET['redirect']}" ?>">Finish Session</a></li>
+				<li><a href="<?= "invite_people.php?session={$_GET['session']}&redirect={$_GET['redirect']}" ?>">Invite People</a></li>
+			</ul>
+			<h3>Details</h3>
+			<form action="<?= "http://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]" ?>" method="POST">
+				<table>
 					<tr>
-						<td><?= $shift['employee']; ?></td>
-						<td><input type="time" name="<?= $shift['employee'] ?>hours" value="<?= $shift['length']; ?>"></td>
-						<td><input type="checkbox" name="<?= $shift['employee'] ?>remove"></td>
+						<th>Aspect</th>
+						<th>Value</th>
 					</tr>
-				<?php endforeach ?>
-			</table>
-			<input type="submit" value="Update Shifts" name="submit" />
-		</form>
-		<!-- Add shifts -->
-		<form action="<?= "http://{$_SERVER["HTTP_HOST"]}{$_SERVER["REQUEST_URI"]}" ?>" method="POST">
-			<?php
-			foreach(getColumn($conn, "employee", "name") as $employee)
-				if (!in_array($employee, $session_employees))
-					printf('<input type="checkbox" name="%1$s" value="%1$s">%1$s<br>', $employee);
-			?>
-			<input type="submit" value="Add Workers" name="submit">
-		</form>
-		<!-- INVITES -->
-		<h3>Invites</h3>
-		<form action="<?= "http://{$_SERVER["HTTP_HOST"]}{$_SERVER["REQUEST_URI"]}" ?>" method="POST">
-			<?php table2HTML($conn, "CALL sessionInvites(?)", $session_data['date']); ?>
-		</form>
+					<tr>
+						<td>Date</td>
+						<td><?= $session_data['date']; ?></td>
+					</tr>
+					<tr>
+						<td>Organiser</td>
+						<td><?= $session_data['organiser']; ?></td>
+					</tr>
+					<tr>
+						<td>Start</td>
+						<td><input type="time" name="start" value="<?= $session_data['start']; ?>"></td>
+					</tr>
+					<tr>
+						<td>End</td>
+						<td><input type="time" name="end" value="<?= $session_data['end']; ?>"></td>
+					</tr>
+				</table>
+				<input type="submit" value="Update Details" name="submit" />
+			</form>
+			<!-- CHANGE SESSION WORKERS -->
+			<h3>Workers</h3>
+			<!-- Current shifts -->
+			<form action="<?= "http://{$_SERVER["HTTP_HOST"]}{$_SERVER["REQUEST_URI"]}" ?>" method="POST">
+				<table>
+					<tr>
+						<th>Employee</th>
+						<th>Hours Worked</th>
+						<th>Remove</th>
+					</tr>
+					<?php foreach($shift_data as $shift): ?>
+						<tr>
+							<td><?= $shift['employee']; ?></td>
+							<td><input type="time" name="<?= $shift['employee'] ?>hours" value="<?= $shift['length']; ?>"></td>
+							<td><input type="checkbox" name="<?= $shift['employee'] ?>remove"></td>
+						</tr>
+					<?php endforeach ?>
+				</table>
+				<input type="submit" value="Update Shifts" name="submit" />
+			</form>
+			<!-- Add shifts -->
+			<form action="<?= "http://{$_SERVER["HTTP_HOST"]}{$_SERVER["REQUEST_URI"]}" ?>" method="POST">
+				<?php
+				foreach(getColumn($conn, "employee", "name") as $employee)
+					if (!in_array($employee, $session_employees))
+						printf('<input type="checkbox" name="%1$s" value="%1$s">%1$s<br>', $employee);
+				?>
+				<input type="submit" value="Add Workers" name="submit">
+			</form>
+			<!-- INVITES -->
+			<h3>Invites</h3>
+			<form action="<?= "http://{$_SERVER["HTTP_HOST"]}{$_SERVER["REQUEST_URI"]}" ?>" method="POST">
+				<?php table2HTML($conn, "CALL sessionInvites(?)", $session_data['date']); ?>
+			</form>
+		</div>
+
+		<!-- Optional JavaScript -->
+		<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+		<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 	</body>
 </html>

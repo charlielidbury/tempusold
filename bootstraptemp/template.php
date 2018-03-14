@@ -1,11 +1,13 @@
 <?php
+
 session_start();
 
 // redirects users who aren't logged in
 if (!isset($_SESSION['user']))
 	header("Location: http://{$_SERVER['HTTP_HOST']}/login.php?redirect={$_SERVER['REQUEST_URI']}");
 
-include "{$_SERVER['DOCUMENT_ROOT']}/src/db.php";
+include  "{$_SERVER['DOCUMENT_ROOT']}/src/db.php";
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -17,13 +19,13 @@ include "{$_SERVER['DOCUMENT_ROOT']}/src/db.php";
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 		<link rel="stylesheet" href="/style.css">
 
-		<title>Tempus - Payments</title>
+		<title>Bootstrap 4 Starter Template</title>
 	</head>
 	<body>
 		<div class="container">
 		    <?php include "{$_SERVER['DOCUMENT_ROOT']}/header.php"; ?>
 
-			<?php table2HTML($conn, "CALL userPayments(?)", $_SESSION['user']); ?>
+			
 		</div>
 
 		<!-- Optional JavaScript -->

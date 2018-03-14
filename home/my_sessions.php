@@ -57,56 +57,68 @@ ORDER BY `shift`.`date` DESC";
 
 ?>
 <!DOCTYPE html>
-<html>
+<html lang="en">
 	<head>
 		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+		<!-- Bootstrap CSS -->
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+		<link rel="stylesheet" href="/style.css">
+
 		<title>Tempus - Sessions</title>
-		<link rel="stylesheet" href="/css/style.css">
 	</head>
 	<body>
-		<h1><a href="/">Tempus</a></h1>
-		<h2><a href="/home/">Home</a></h2>
-		<h3><a href="/home/sessions/">Sessions</a></h3>
+		<div class="container">
+		    <?php include "{$_SERVER['DOCUMENT_ROOT']}/header.php"; ?>
 
-		<!-- UPCOMING SESSIONS -->
-		<?php if (sizeof($upcoming_data)): ?>
-			<h1>Upcoming Sessions</h1>
-			<table>
-				<tr>
-					<th>Date</th>
-					<th>Organiser</th>
-					<th>Start</th>
-					<th>End</th>
-					<th>Confirmed Colleagues</th>
-					<th>Invite</th>
-				</tr>
-
-				<?php foreach($upcoming_data as $session): ?>
-
+			<!-- UPCOMING SESSIONS -->
+			<?php if (sizeof($upcoming_data)): ?>
+				<h1>Upcoming Sessions</h1>
+				<table>
 					<tr>
-						<td><?= $session['date'] ?></td>
-						<td><?= $session['organiser'] ?></td>
-						<td><?= $session['start'] ?></td>
-						<td><?= $session['end'] ?></td>
-						<td><?= $session['others'] ?></td>
-						<td>
-							<?php if (gettype($session['accepted']) == "integer") { ?>
-								<a href="<?= "http://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}?session={$session['date']}" ?>">
-									<?php if ($session['accepted']) echo "Unaccept"; else echo "Undecline"; ?>
-								</a>
-							<?php } else { ?>
-								<a href="<?= "http://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}?session={$session['date']}&response=1" ?>">Accept</a>
-								<a href="<?= "http://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}?session={$session['date']}&response=0" ?>">Decline</a>
-							<?php } ?>
-						</td>
+						<th>Date</th>
+						<th>Organiser</th>
+						<th>Start</th>
+						<th>End</th>
+						<th>Confirmed Colleagues</th>
+						<th>Invite</th>
 					</tr>
 
-				<?php endforeach; ?>
-			</table>
-		<?php endif; ?>
+					<?php foreach($upcoming_data as $session): ?>
 
-		<!-- SESSION ARCHIVE -->
-		<h1>Session Archive</h1>
-		<?php table2HTML($conn, $archive_query, $_SESSION['user'], $_SESSION['user']) ?>
+						<tr>
+							<td><?= $session['date'] ?></td>
+							<td><?= $session['organiser'] ?></td>
+							<td><?= $session['start'] ?></td>
+							<td><?= $session['end'] ?></td>
+							<td><?= $session['others'] ?></td>
+							<td>
+								<?php if (gettype($session['accepted']) == "integer") { ?>
+									<a href="<?= "http://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}?session={$session['date']}" ?>">
+										<?php if ($session['accepted']) echo "Unaccept"; else echo "Undecline"; ?>
+									</a>
+								<?php } else { ?>
+									<a href="<?= "http://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}?session={$session['date']}&response=1" ?>">Accept</a>
+									<a href="<?= "http://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}?session={$session['date']}&response=0" ?>">Decline</a>
+								<?php } ?>
+							</td>
+						</tr>
+
+					<?php endforeach; ?>
+				</table>
+			<?php endif; ?>
+
+			<!-- SESSION ARCHIVE -->
+			<h1>Session Archive</h1>
+			<?php table2HTML($conn, $archive_query, $_SESSION['user'], $_SESSION['user']) ?>
+
+		</div>
+
+		<!-- Optional JavaScript -->
+		<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+		<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 	</body>
 </html>
