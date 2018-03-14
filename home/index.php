@@ -68,7 +68,8 @@ SELECT employee AS `Employee`,
 		AS `Avg. Response Time (HH:MM)`
 FROM invite
 WHERE TO_SECONDS(received) - TO_SECONDS(sent) > 0
-GROUP BY employee;
+GROUP BY employee
+ORDER BY AVG(TO_SECONDS(received) - TO_SECONDS(sent)) ASC;
 EOT;
 
 ?>
