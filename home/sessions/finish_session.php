@@ -7,7 +7,6 @@ if (!isset($_SESSION['user']))
 	header("Location: http://{$_SERVER['HTTP_HOST']}/login.php?redirect={$_SERVER['REQUEST_URI']}");
 
 include "{$_SERVER['DOCUMENT_ROOT']}/src/db.php";
-
 // if custom user the logged in user must have perms to edit session's details
 if (!hasPerms($conn, "sessions", 2))
 	header("Location: {$_SERVER['HTTP_HOST']}/permission_denied.php");
@@ -25,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST")
 			]);
 
 	// Updates the discord
-	discoBot("deleteChannel", $_GET['session'])
+	discoBot("deleteChannel", $_GET['session']);
 
 	// redirect back
 	if (isset($_GET['redirect']))
@@ -36,7 +35,7 @@ $employees_query = <<<EOT
 SELECT invite.employee
 FROM invite
 	LEFT JOIN shift ON shift.employee = invite.employee AND shift.date = invite.session
-WHERE session = "2018-03-24"
+WHERE session = ?
 	AND accepted = 1
 	AND shift.employee IS NULL
 EOT;
