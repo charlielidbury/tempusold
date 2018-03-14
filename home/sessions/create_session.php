@@ -14,12 +14,7 @@ if (!hasPerms($conn, "sessions", 2))
 // ----- SAFE AREA -----
 if ($_SERVER['REQUEST_METHOD'] == 'POST') // update has been pressed
 {
-	// INSERT ROW
-	$employees = q($conn, "SELECT name FROM employee");
-	$row = [];
-	$disco_cmds = []; // list of commands to be sent to the bot
-
-	// sorts $_POST into $invites (invite details) and $row (session details)
+	// Makes $row a list of all the details
 	$row = $_POST;
 	unset($row['submit']);
 

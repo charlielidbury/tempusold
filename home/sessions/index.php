@@ -29,7 +29,7 @@ SELECT
 FROM `session`
 	LEFT JOIN (SELECT date, COUNT(*) AS shifts FROM shift GROUP BY date) s ON s.date = session.date
 	LEFT JOIN (SELECT session, COUNT(*) AS invites FROM invite GROUP BY session) i ON i.session = session.date
-WHERE COALESCE(i.invites, 0) > COALESCE(s.shifts, 0)
+WHERE COALESCE(i.invites, 1) > COALESCE(s.shifts, 0)
 GROUP BY
 	`session`.`date`,
 	`session`.`organiser`,
