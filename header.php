@@ -45,8 +45,8 @@
 				</a>
 				<div class="dropdown-menu">
 					<img src="<?= q($conn, "SELECT icon FROM employee WHERE name = ?", ['args'=>$_SESSION['user']]) ?>" alt="<?= $_SESSION['user'] ?>'s icon'" width="128" height="128">
-					<a class="dropdown-item" href="#">Stats</a>
-					<a class="dropdown-item" href="#">Profile</a>
+					<a class="dropdown-item" href="/home/team/view_user.php?user=<?= $_SESSION['user'] ?>">Stats</a>
+					<a class="dropdown-item" href="/home/team/edit_user.php?user=<?= $_SESSION['user'] ?>">Profile</a>
 					<div class="dropdown-divider"></div>
 					<a class="dropdown-item" href="/src/logout.php">Logout</a>
 				</div>

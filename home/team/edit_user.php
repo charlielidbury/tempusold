@@ -92,7 +92,11 @@ $user_data = getRow($conn, "employee", ["name" => $_GET['user']]);
 					</tr>
 					<tr>
 						<td>Name</td>
-						<td><input type="username" name="name" value='<?= $user_data['name']; ?>'></td>
+						<td>
+							<?php if ($restricted) echo $user_data['name']; else { ?>
+								<input type="username" name="name" value='<?= $user_data['name']; ?>'>
+							<?php } ?>
+						</td>
 					</tr>
 					<tr>
 						<td>Password</td>
