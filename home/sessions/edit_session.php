@@ -24,13 +24,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') // update has been pressed
 	{
 		// update session info
 		updateRow($conn, "session", ["date" => $_GET['session']], [
-			"date" => $_POST['date'],
 			"start" => $_POST['start'],
 			"end" => $_POST['end']
 		]);
 
 		// refreshes session data
-		$session_data = getRow($conn, "session", ["date" => $_POST['date']]);
+		$session_data = getRow($conn, "session", ["date" => $_GET['session']]);
 	}
 	elseif ($_POST['submit'] == "Update Shifts") // UPDATE SHIFTS
 	{
