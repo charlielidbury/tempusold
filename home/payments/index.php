@@ -53,7 +53,7 @@ WHERE `total_shift`.`earnt` - `total_payment`.`paid` != 0";
 		<div class="container">
 		    <?php include "{$_SERVER['DOCUMENT_ROOT']}/header.php"; ?>
 
-			<h2>Create Payment</h2>
+			<h1>Create Payment</h1>
 			<form action="<?= "http://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}" ?>" method="POST">
 				<table>
 					<tr>
@@ -72,7 +72,7 @@ WHERE `total_shift`.`earnt` - `total_payment`.`paid` != 0";
 				<input type="submit" value="Pay All">
 			</form>
 
-			<h2>Historic Payments</h2>
+			<h1>Historic Payments</h1>
 			<?php table2HTML($conn, "SELECT * FROM `view_payment`"); ?>
 		</div>
 

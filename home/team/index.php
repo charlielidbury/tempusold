@@ -45,10 +45,13 @@ GROUP BY `employee`.`name`';
 		<div class="container">
 		    <?php include "{$_SERVER['DOCUMENT_ROOT']}/header.php"; ?>
 
+			<h1>Actions</h1>
 			<ul>
-				<li><a href="create_user.php?redirect=index.php">Create new user</a></li>
+				<li><a href="create_user.php?redirect=index.php">Create New User</a></li>
+				<li><a href="manage_roles.php?redirect=index.php">Manage Roles</a></li>
 			</ul>
 
+			<h1>Team Members</h1>
 			<table>
 				<tr>
 					<th>Name</th>

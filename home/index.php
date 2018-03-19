@@ -7,21 +7,36 @@ if (!isset($_SESSION['user']))
 
 include "{$_SERVER['DOCUMENT_ROOT']}/src/db.php";
 
-$row = getRow($conn, "role", [
-	"role" => getCell($conn, "role", "employee", "name", $_SESSION['user'])
-]);
-unset($row['role']);
+// LEADERBOARD
+$leaderboard_query = <<<EOT
+SELECT employee AS `Employee`,
+	TIME_FORMAT(SEC_TO_TIME(AVG(TO_SECONDS(received) - TO_SECONDS(sent))), "%H:%i")
+		AS `Avg. Response Time (HH:MM)`
+FROM invite
+WHERE TO_SECONDS(received) - TO_SECONDS(sent) > 0
+GROUP BY employee
+ORDER BY AVG(TO_SECONDS(received) - TO_SECONDS(sent)) ASC;
+EOT;
 
-$perms = [];
-foreach ($row as $perm => $level)
-	if ($level >= 1)
-		$perms[] = [
-			"team" => "<a href='/home/team'>Team</a>",
-			"sessions" => "<a href='/home/sessions'>Manage Sessions</a>",
-			"payments" => "<a href='/home/payments'>Manage Payments</a>"
-		][$perm];
+// INVITES
+$invites_query = <<<EOT
+SELECT
+	`session`.`date` AS `Session`,
+	(SELECT GROUP_CONCAT(`i`.`employee`) FROM `invite` `i`
+		WHERE `i`.`session` = `session`.`date`
+		  AND `i`.`employee` != `invite`.`employee`
+		  AND `i`.`accepted` = 1
+	) AS `others`,
+	`invite`.`accepted`
+FROM `invite`
+	JOIN `session` ON `session`.`date` = `invite`.`session`
+	LEFT JOIN `shift` ON `shift`.`date` = `invite`.`session`
+WHERE `invite`.`employee` = ?
+	AND `shift`.`date` IS NULL
+EOT;
 
-$upcoming_query = <<<EOT
+// QUICK ACTIONS
+$actions_query = <<<EOT
 SELECT
 	DATE_FORMAT(`session`.`date`, "%d/%m/%y") AS `Session`,
 	CONCAT(
@@ -42,35 +57,20 @@ GROUP BY
 ORDER BY `session`.`date` ASC
 EOT;
 
-$query = <<<EOT
+$sessions_query = <<<EOT
 SELECT
-	COUNT(*)
+	DATE_FORMAT(`session`.`date`, "%d/%m/%y") AS `Session`,
+	DATE_FORMAT(`session`.`date`, "%Y-%m-%d") AS `date`
 FROM `session`
 	LEFT JOIN (SELECT date, COUNT(*) AS shifts FROM shift GROUP BY date) s ON s.date = session.date
 	LEFT JOIN (SELECT session, COUNT(*) AS invites FROM invite GROUP BY session) i ON i.session = session.date
 WHERE COALESCE(i.invites, 0) > COALESCE(s.shifts, 0)
 GROUP BY
-	`session`.`date`,
-	`session`.`organiser`,
-	`session`.`start`,
-	`session`.`end`
+	`session`.`date`
 ORDER BY `session`.`date` ASC
 EOT;
 
-if (hasPerms($conn, "sessions", 2))
-	$render_upcoming = q($conn, $query);
-else
-	$render_upcoming = false;
-
-$leaderboard_query = <<<EOT
-SELECT employee AS `Employee`,
-	TIME_FORMAT(SEC_TO_TIME(AVG(TO_SECONDS(received) - TO_SECONDS(sent))), "%H:%i")
-		AS `Avg. Response Time (HH:MM)`
-FROM invite
-WHERE TO_SECONDS(received) - TO_SECONDS(sent) > 0
-GROUP BY employee
-ORDER BY AVG(TO_SECONDS(received) - TO_SECONDS(sent)) ASC;
-EOT;
+$sessions_data = q($conn, $sessions_query, ['force'=>"TABLE"]);
 
 ?>
 <!DOCTYPE html>
@@ -96,8 +96,8 @@ EOT;
 
 			<!-- QUICK ACTIONS -->
 			<?php
-			if ($render_upcoming)
-				{ echo "<h1>Quick Actions</h1>"; table2HTML($conn, $upcoming_query); }
+			if ($render_actions)
+				{ echo "<h1>Quick Actions</h1>"; table2HTML($conn, $actions_query); }
 			?>
 		</div>
 
