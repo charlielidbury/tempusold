@@ -15,13 +15,13 @@ $query = 'SELECT
 	`employee`.`name`,
 	COALESCE(`employee`.`rate`, 0) as `rate`,
 	COALESCE(`total_shift`.`hours`, SEC_TO_TIME(0)) AS `hours`,
-	COALESCE(`total_shift`.`earnt`, 0) AS `earnt`,
+	COALESCE(`total_shift`.`earned`, 0) AS `earned`,
 	COALESCE(`total_payment`.`paid`, 0) AS `paid`,
-	COALESCE(`total_shift`.`earnt` - `total_payment`.`paid`, 0) AS `outstanding`,
+	COALESCE(`total_shift`.`earned` - `total_payment`.`paid`, 0) AS `outstanding`,
 	DATE_FORMAT(COALESCE(`total_shift`.`start`, DATE(NOW())), "%d/%m/%y") AS `join`,
 	`icon`
 FROM `employee`
-	LEFT JOIN (SELECT `employee`, ROUND(SUM( TIME_TO_SEC(`length`)*`rate`/3600 ), 2) as `earnt`, SEC_TO_TIME(SUM(TIME_TO_SEC(`length`))) AS `hours`, MIN(`date`) AS `start` FROM `shift` GROUP BY `employee`) `total_shift`
+	LEFT JOIN (SELECT `employee`, ROUND(SUM( TIME_TO_SEC(`length`)*`rate`/3600 ), 2) as `earned`, SEC_TO_TIME(SUM(TIME_TO_SEC(`length`))) AS `hours`, MIN(`date`) AS `start` FROM `shift` GROUP BY `employee`) `total_shift`
 		ON `total_shift`.`employee` = `employee`.`name`
 	LEFT JOIN (SELECT `payee`, SUM(`amount`) AS `paid` FROM `payment` GROUP BY `payee`) `total_payment`
 		ON `total_payment`.`payee` = `employee`.`name`
@@ -57,7 +57,7 @@ GROUP BY `employee`.`name`';
 					<th>Name</th>
 					<th>Hourly Rate</th>
 					<th>Total Hours</th>
-					<th>Total Earnt</th>
+					<th>Total Earned</th>
 					<th>Total Paid</th>
 					<th>Outstanding</th>
 					<th>Join Date</th>
@@ -70,7 +70,7 @@ GROUP BY `employee`.`name`';
 						<td><?= $employee['name'] ?></td>
 						<td>£<?= $employee['rate'] ?></td>
 						<td><?= $employee['hours'] ?></td>
-						<td>£<?= $employee['earnt'] ?></td>
+						<td>£<?= $employee['earned'] ?></td>
 						<td>£<?= $employee['paid'] ?></td>
 						<td>£<?= $employee['outstanding'] ?></td>
 						<td><?= $employee['join'] ?></td>
@@ -79,6 +79,8 @@ GROUP BY `employee`.`name`';
 							<a href="view_user.php?user=<?= $employee['name'] ?>&redirect=index.php">View</a>
 							<br>
 							<a href="edit_user.php?user=<?= $employee['name'] ?>&redirect=index.php">Edit</a>
+							<br>
+							<a href="impersonate.php?user=<?= $employee['name'] ?>">Impersonate</a>
 						</td>
 					</tr>
 				<?php endforeach; ?>
