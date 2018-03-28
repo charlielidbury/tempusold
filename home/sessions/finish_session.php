@@ -32,16 +32,21 @@ if ($_SERVER['REQUEST_METHOD'] == "POST")
 }
 
 $employees_query = <<<EOT
-SELECT invite.employee
+SELECT
+	invite.employee,
+	COALESCE(log.length, SEC_TO_TIME(TIME_TO_SEC(`end`) - TIME_TO_SEC(`start`))) AS duration
 FROM invite
 	LEFT JOIN shift ON shift.employee = invite.employee AND shift.date = invite.session
+	LEFT JOIN session ON session.date = invite.session
+	LEFT JOIN (SELECT employee, SEC_TO_TIME(SUM(TIME_TO_SEC(IF(log_out = '00:00:00', CURRENT_TIME(), log_out)) - TIME_TO_SEC(log_in))) AS length FROM log WHERE session = CURRENT_DATE() GROUP BY employee) log
+		ON log.employee = invite.employee
 WHERE session = ?
 	AND accepted = 1
 	AND shift.employee IS NULL
 EOT;
 
 $employees = q($conn, $employees_query,
-	['args'=>$_GET['session'], 'force'=>'COLUMN']);
+	['args'=>$_GET['session'], 'force'=>'TABLE']);
 
 $duration = q($conn, "SELECT SEC_TO_TIME(TIME_TO_SEC(`end`)-TIME_TO_SEC(`start`)) FROM session WHERE `date` = ?",
 	['args'=>$_GET['session']]);
@@ -72,10 +77,10 @@ $duration = q($conn, "SELECT SEC_TO_TIME(TIME_TO_SEC(`end`)-TIME_TO_SEC(`start`)
 					</tr>
 					<?php foreach($employees as $employee): ?>
 						<tr>
-							<td><?= $employee ?></td>
-							<td><input type="time" name="<?= $employee ?>" value="<?= $duration ?>"></td>
+							<td><?= $employee['employee'] ?></td>
+							<td><input type="time" name="<?= $employee ?>" value="<?= $employee['duration'] ?>"></td>
 							<!-- When checked this overrides the time and stop the time from being added -->
-							<td><input type="checkbox" name="<?= $employee ?>"></td>
+							<td><input type="checkbox" name="<?= $employee['employee'] ?>"></td>
 						</tr>
 					<?php endforeach ?>
 				</table>

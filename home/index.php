@@ -57,20 +57,7 @@ GROUP BY
 ORDER BY `session`.`date` ASC
 EOT;
 
-$sessions_query = <<<EOT
-SELECT
-	DATE_FORMAT(`session`.`date`, "%d/%m/%y") AS `Session`,
-	DATE_FORMAT(`session`.`date`, "%Y-%m-%d") AS `date`
-FROM `session`
-	LEFT JOIN (SELECT date, COUNT(*) AS shifts FROM shift GROUP BY date) s ON s.date = session.date
-	LEFT JOIN (SELECT session, COUNT(*) AS invites FROM invite GROUP BY session) i ON i.session = session.date
-WHERE COALESCE(i.invites, 0) > COALESCE(s.shifts, 0)
-GROUP BY
-	`session`.`date`
-ORDER BY `session`.`date` ASC
-EOT;
-
-$sessions_data = q($conn, $sessions_query, ['force'=>"TABLE"]);
+$actions_data = q($conn, $actions_query, ['force'=>"TABLE"]);
 
 ?>
 <!DOCTYPE html>
@@ -90,13 +77,21 @@ $sessions_data = q($conn, $sessions_query, ['force'=>"TABLE"]);
 			<!-- HEADER -->
 		    <?php include "{$_SERVER['DOCUMENT_ROOT']}/header.php"; ?>
 
+			<!-- LOGGING -->
+			<?php if (q($conn, "SELECT COUNT(session) FROM `invite` WHERE session = CURRENT_DATE() AND employee = '{$_SESSION['user']}' AND accepted")): ?>
+				<h1><a href="log.php?redirect=index.php">
+					Log <?= q($conn, "SELECT IF((SELECT session FROM `log` WHERE session = CURRENT_DATE() AND log_out = '00:00:00' AND employee = '{$_SESSION['user']}'), 'Off', 'On')") ?>
+					<?= q($conn, "SELECT CONCAT('(', SEC_TO_TIME(SUM(TIME_TO_SEC(IF(log_out = '00:00:00', CURRENT_TIME(), log_out)) - TIME_TO_SEC(log_in))), ' so far)') FROM log WHERE session = CURRENT_DATE() AND employee = ?", ['args'=>$_SESSION['user']]) ?>
+				</a></h1>
+			<?php endif; ?>
+
 			<!-- INVITE LEADERBOARD -->
 			<h1>Invite Leaderboard</h1>
 			<?php table2HTML($conn, $leaderboard_query) ?>
 
 			<!-- QUICK ACTIONS -->
 			<?php
-			if ($render_actions)
+			if (sizeof($actions_data))
 				{ echo "<h1>Quick Actions</h1>"; table2HTML($conn, $actions_query); }
 			?>
 		</div>

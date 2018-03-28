@@ -19,9 +19,9 @@ $user_data = q($conn, 'SELECT
 	`employee`.`name`,
 	COALESCE(`employee`.`rate`, 0) as `rate`,
 	`total_shift`.`hours` AS `hours`,
-	`total_shift`.`earnt` AS `earnt`,
+	`total_shift`.`earned` AS `earned`,
 	`total_payment`.`paid` AS `paid`,
-	`total_shift`.`earnt` - `total_payment`.`paid` AS `outstanding`,
+	`total_shift`.`earned` - `total_payment`.`paid` AS `outstanding`,
 	DATE_FORMAT(COALESCE(`total_shift`.`start`, DATE(NOW())), "%d/%m/%y") AS `join`,
 	`icon`,
 	`employee`.`role`,
@@ -30,7 +30,7 @@ $user_data = q($conn, 'SELECT
 	`payments`
 FROM `employee`
 	LEFT JOIN `role` ON `role`.`role` = `employee`.`role`
-	LEFT JOIN (SELECT `employee`, ROUND(SUM( TIME_TO_SEC(`length`)*`rate`/3600 ), 2) as `earnt`, SEC_TO_TIME(SUM(TIME_TO_SEC(`length`))) AS `hours`, MIN(`date`) AS `start` FROM `shift` GROUP BY `employee`) `total_shift`
+	LEFT JOIN (SELECT `employee`, ROUND(SUM( TIME_TO_SEC(`length`)*`rate`/3600 ), 2) as `earned`, SEC_TO_TIME(SUM(TIME_TO_SEC(`length`))) AS `hours`, MIN(`date`) AS `start` FROM `shift` GROUP BY `employee`) `total_shift`
 		ON `total_shift`.`employee` = `employee`.`name`
 	LEFT JOIN (SELECT `payee`, SUM(`amount`) AS `paid` FROM `payment` GROUP BY `payee`) `total_payment`
 		ON `total_payment`.`payee` = `employee`.`name`
@@ -56,11 +56,6 @@ $roles = ['None', 'View', 'Edit'];
 		<div class="container">
 		    <?php include "{$_SERVER['DOCUMENT_ROOT']}/header.php"; ?>
 
-			<p>Profile details:</p>
-			<ul>
-				<li><a href="<?= "change_password.php?user={$_GET['user']}&redirect=http://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}" ?>">Change Password</a></li>
-			</ul>
-
 			<table>
 				<tr>
 					<th>Aspect</th>
@@ -79,8 +74,8 @@ $roles = ['None', 'View', 'Edit'];
 					<td><?= $user_data['hours'] ?></td>
 				</tr>
 				<tr>
-					<td>Total Earnt</td>
-					<td>£<?= $user_data['earnt'] ?></td>
+					<td>Total Earned</td>
+					<td>£<?= $user_data['earned'] ?></td>
 				</tr>
 				<tr>
 					<td>Total Paid</td>

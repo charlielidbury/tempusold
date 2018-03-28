@@ -29,14 +29,19 @@ function discoBot(...$cmds_or_args)
 		// if a single command is passed
 		$cmds_or_args = [$cmds_or_args];
 
+	// using JSON encoding for arrays
+	// regular http encoding sucks dick
 	$string = json_encode($cmds_or_args);
 
+	// sets the listening address
 	$ch = curl_init("http://localhost:3000");
+	// option settings
 	curl_setopt($ch, CURLOPT_POST, true);
 	curl_setopt($ch, CURLOPT_POSTFIELDS, $string);
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 	curl_setopt($ch, CURLOPT_TIMEOUT, 1);
 
+	// MESSAGE SENT
 	curl_exec($ch);
 	curl_close($ch);
 }
