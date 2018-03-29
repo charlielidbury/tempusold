@@ -80,8 +80,8 @@ $actions_data = q($conn, $actions_query, ['force'=>"TABLE"]);
 			<!-- LOGGING -->
 			<?php if (q($conn, "SELECT COUNT(session) FROM `invite` WHERE session = CURRENT_DATE() AND employee = '{$_SESSION['user']}' AND accepted")): ?>
 				<h1><a href="log.php?redirect=index.php">
-					Log <?= q($conn, "SELECT IF((SELECT session FROM `log` WHERE session = CURRENT_DATE() AND log_out = '00:00:00' AND employee = '{$_SESSION['user']}'), 'Off', 'On')") ?>
-					<?= q($conn, "SELECT CONCAT('(', SEC_TO_TIME(SUM(TIME_TO_SEC(IF(log_out = '00:00:00', CURRENT_TIME(), log_out)) - TIME_TO_SEC(log_in))), ' so far)') FROM log WHERE session = CURRENT_DATE() AND employee = ?", ['args'=>$_SESSION['user']]) ?>
+					Clock <?= q($conn, "SELECT IF((SELECT session FROM `clock` WHERE session = CURRENT_DATE() AND clock_off IS NULL AND employee = '{$_SESSION['user']}'), 'Off', 'On')") ?>
+					<?= q($conn, "SELECT CONCAT('(', SEC_TO_TIME(SUM(TIME_TO_SEC(COALESCE(clock_off, CURRENT_TIME())) - TIME_TO_SEC(clock_on))), ' so far)') FROM clock WHERE session = CURRENT_DATE() AND employee = ?", ['args'=>$_SESSION['user']]) ?>
 				</a></h1>
 			<?php endif; ?>
 

@@ -34,12 +34,12 @@ if ($_SERVER['REQUEST_METHOD'] == "POST")
 $employees_query = <<<EOT
 SELECT
 	invite.employee,
-	COALESCE(log.length, SEC_TO_TIME(TIME_TO_SEC(`end`) - TIME_TO_SEC(`start`))) AS duration
+	COALESCE(clock.length, SEC_TO_TIME(TIME_TO_SEC(`end`) - TIME_TO_SEC(`start`))) AS duration
 FROM invite
 	LEFT JOIN shift ON shift.employee = invite.employee AND shift.date = invite.session
 	LEFT JOIN session ON session.date = invite.session
-	LEFT JOIN (SELECT employee, SEC_TO_TIME(SUM(TIME_TO_SEC(IF(log_out = '00:00:00', CURRENT_TIME(), log_out)) - TIME_TO_SEC(log_in))) AS length FROM log WHERE session = CURRENT_DATE() GROUP BY employee) log
-		ON log.employee = invite.employee
+	LEFT JOIN (SELECT employee, SEC_TO_TIME(SUM(TIME_TO_SEC(COALESCE(clock_off, CURRENT_TIME())) - TIME_TO_SEC(clock_on))) AS length FROM clock WHERE session = CURRENT_DATE() GROUP BY employee) clock
+		ON clock.employee = invite.employee
 WHERE session = ?
 	AND accepted = 1
 	AND shift.employee IS NULL

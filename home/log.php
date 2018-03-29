@@ -7,7 +7,7 @@ if (!isset($_SESSION['user']))
 
 include "{$_SERVER['DOCUMENT_ROOT']}/src/db.php";
 
-q($conn, "CALL toggleLog(?)", ['args'=>$_SESSION['user']]);
+q($conn, "CALL toggleClock(?)", ['args'=>$_SESSION['user']]);
 
 if (isset($_GET['redirect']))
 	header("Location: {$_GET['redirect']}");
