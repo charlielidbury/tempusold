@@ -73,9 +73,9 @@ $actions_data = q($conn, $actions_query, ['force'=>"TABLE"]);
 		<title>Tempus - Home</title>
 	</head>
 	<body>
+		<!-- HEADER -->
+		<?php include "{$_SERVER['DOCUMENT_ROOT']}/header.php"; ?>
 		<div class="container">
-			<!-- HEADER -->
-		    <?php include "{$_SERVER['DOCUMENT_ROOT']}/header.php"; ?>
 
 			<!-- CLOCKING -->
 			<?php if (q($conn, "SELECT COUNT(session) FROM `invite` WHERE session = CURRENT_DATE() AND employee = '{$_SESSION['user']}' AND accepted")): ?>

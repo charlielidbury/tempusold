@@ -65,8 +65,8 @@ $duration = q($conn, "SELECT SEC_TO_TIME(TIME_TO_SEC(`end`)-TIME_TO_SEC(`start`)
 		<title>Tempus - Finish Session</title>
 	</head>
 	<body>
+		<?php include "{$_SERVER['DOCUMENT_ROOT']}/header.php"; ?>
 		<div class="container">
-		    <?php include "{$_SERVER['DOCUMENT_ROOT']}/header.php"; ?>
 
 			<form action="<?= "http://{$_SERVER["HTTP_HOST"]}{$_SERVER["REQUEST_URI"]}" ?>" method="POST">
 				<table>

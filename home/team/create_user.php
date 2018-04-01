@@ -79,8 +79,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') // update has been pressed
 		<title>Bootstrap 4 Starter Template</title>
 	</head>
 	<body>
+		<?php include "{$_SERVER['DOCUMENT_ROOT']}/header.php"; ?>
 		<div class="container">
-		    <?php include "{$_SERVER['DOCUMENT_ROOT']}/header.php"; ?>
 
 			<ul> <?php
 				foreach ($errors as $error) printf("<li>%s</li>\n", $error);

@@ -20,12 +20,12 @@ include "{$_SERVER['DOCUMENT_ROOT']}/src/db.php";
 		<title>Tempus - Payments</title>
 	</head>
 	<body>
+
+		<?php include "{$_SERVER['DOCUMENT_ROOT']}/header.php"; ?>
 		<div class="container">
 
-		    <?php include "{$_SERVER['DOCUMENT_ROOT']}/header.php"; ?>
-
 			<h1>Historic Payments</h1>
-			
+
 			<?php table2HTML($conn, "CALL userPayments(?)", $_SESSION['user']); ?>
 		</div>
 

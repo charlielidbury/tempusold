@@ -71,8 +71,8 @@ ORDER BY `shift`.`date` DESC";
 		<title>Tempus - Sessions</title>
 	</head>
 	<body>
+		<?php include "{$_SERVER['DOCUMENT_ROOT']}/header.php"; ?>
 		<div class="container">
-		    <?php include "{$_SERVER['DOCUMENT_ROOT']}/header.php"; ?>
 
 			<!-- UPCOMING SESSIONS -->
 			<?php if (sizeof($upcoming_data)): ?>

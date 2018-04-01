@@ -77,8 +77,8 @@ $user_data = getRow($conn, "employee", ["name" => $_GET['user']]);
 		<title>Tempus - Change Details</title>
 	</head>
 	<body>
+		<?php include "{$_SERVER['DOCUMENT_ROOT']}/header.php"; ?>
 		<div class="container">
-		    <?php include "{$_SERVER['DOCUMENT_ROOT']}/header.php"; ?>
 
 			<ul> <?php
 				foreach ($errors as $error) printf("<li>%s</li>\n", $error);

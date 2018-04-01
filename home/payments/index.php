@@ -60,8 +60,8 @@ EOT;
 		<title>Tempus - Payments</title>
 	</head>
 	<body>
+		<?php include "{$_SERVER['DOCUMENT_ROOT']}/header.php"; ?>
 		<div class="container">
-		    <?php include "{$_SERVER['DOCUMENT_ROOT']}/header.php"; ?>
 
 			<h1>Create Payment</h1>
 			<form action="<?= "http://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}" ?>" method="POST">
