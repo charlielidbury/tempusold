@@ -78,7 +78,7 @@ $duration = q($conn, "SELECT SEC_TO_TIME(TIME_TO_SEC(`end`)-TIME_TO_SEC(`start`)
 					<?php foreach($employees as $employee): ?>
 						<tr>
 							<td><?= $employee['employee'] ?></td>
-							<td><input type="time" name="<?= $employee ?>" value="<?= $employee['duration'] ?>"></td>
+							<td><input type="time" name="<?= $employee['employee'] ?>" value="<?= $employee['duration'] ?>"></td>
 							<!-- When checked this overrides the time and stop the time from being added -->
 							<td><input type="checkbox" name="<?= $employee['employee'] ?>"></td>
 						</tr>

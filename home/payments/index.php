@@ -36,6 +36,16 @@ FROM `employee`
 		ON `total_payment`.`payee` = `employee`.`name`
 WHERE `total_shift`.`earnt` - `total_payment`.`paid` != 0";
 
+$historic_query = <<<EOT
+SELECT
+	DATE_FORMAT(`date`, "%d/%m/%y") AS `Date`,
+	`amount` AS `Amount`,
+	CONCAT("<a href='../team/view_user.php?user=", `payment`.`payer`, "'>", `payment`.`payer`, "</a>") AS `Payer`,
+	CONCAT("<a href='../team/view_user.php?user=", `payment`.`payee`, "'>", `payment`.`payee`, "</a>") AS `Payee`,
+	CONCAT("<a href='delete_payment.php?payment=", `payment`.`id`, "&redirect=index.php'>Delete</a>") AS `Actions`
+FROM `payment`
+EOT;
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -73,7 +83,7 @@ WHERE `total_shift`.`earnt` - `total_payment`.`paid` != 0";
 			</form>
 
 			<h1>Historic Payments</h1>
-			<?php table2HTML($conn, "SELECT * FROM `view_payment`"); ?>
+			<?php table2HTML($conn, $historic_query); ?>
 		</div>
 
 		<!-- Optional JavaScript -->
