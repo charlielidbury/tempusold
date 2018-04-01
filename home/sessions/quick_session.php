@@ -8,6 +8,25 @@ if (!isset($_SESSION['user']))
 
 include  "{$_SERVER['DOCUMENT_ROOT']}/src/db.php";
 
+// session:edit only my friend
+if (!hasPerms($conn, "sessions", 2))
+	header("Location: http://{$_SERVER['HTTP_HOST']}/permission_denied.php");
+
+if ($_SERVER['REQUEST_METHOD'] == "POST") {
+	insertRow($conn, "session", [
+		"date" => $_POST['date'],
+		"organiser" => $_SESSION['user']
+	]);
+	insertRow($conn, "shift", [
+		"date" => $_POST['date'],
+		"employee" => $_SESSION['user'],
+		"length" => $_POST['length']
+	]);
+
+	if (isset($_GET['redirect']))
+		header("Location: {$_GET['redirect']}");
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -19,13 +38,31 @@ include  "{$_SERVER['DOCUMENT_ROOT']}/src/db.php";
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 		<link rel="stylesheet" href="/style.css">
 
-		<title>Bootstrap 4 Starter Template</title>
+		<title>Tempus - Quick Session</title>
 	</head>
 	<body>
 		<?php include "{$_SERVER['DOCUMENT_ROOT']}/header.php"; ?>
 		<div class="container">
 
+			<ul> <?php
+				foreach ($errors as $error) printf("<li>%s</li>\n", $error);
+			?>	</ul>
 
+			<p id="required">Required Fields</p>
+
+			<form action="<?= "http://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]" ?>" method="POST">
+				<table>
+					<tr>
+						<td id="required">Date</td>
+						<td><input type="date" name="date"></td>
+					</tr>
+					<tr>
+						<td id="required">Length</td>
+						<td><input type="time" name="length"></td>
+					</tr>
+				</table>
+				<input type="submit" value="Create Quick Session" name="submit" />
+			</form>
 		</div>
 
 		<!-- Optional JavaScript -->

@@ -103,6 +103,7 @@ $render_upcoming = q($conn, $query);
 			<h1>Actions</h1>
 			<ul>
 				<li><a href="create_session.php?redirect=index.php">Create Session</a></li>
+				<li><a href="quick_session.php?redirect=index.php">Quick Session</a></li>
 			</ul>
 
 			<?php if ($render_upcoming)
