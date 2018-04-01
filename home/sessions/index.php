@@ -44,7 +44,14 @@ SELECT
 	CONCAT("<a href='../team/view_user.php?user=", `session`.`organiser`, "'>", `session`.`organiser`, "</a>") AS `Organiser`,
 	TIME_FORMAT(`session`.`start`, "%H:%i") AS `Start`,
 	TIME_FORMAT(`session`.`end`, "%H:%i") AS `End`,
-	GROUP_CONCAT(CONCAT("<a href='../team/view_user.php?user=", `shift`.`employee`, "'>", `shift`.`employee`, "</a>")) AS `Employees`,
+	GROUP_CONCAT(CONCAT("<a href='../team/view_user.php?user=",
+						`shift`.`employee`,
+						"'>",
+						`shift`.`employee`,
+						"</a>(",
+						TIME_FORMAT(`shift`.`length`, "%h:%m"),
+						")"
+				)) AS `Employees`,
 	CONCAT(
 		"<a href='edit_session.php?session=", `session`.`date`, "&redirect=index.php'>Edit</a>|"
 		"<a href='delete_session.php?session=", `session`.`date`, "&redirect=index.php'>Delete</a>"
