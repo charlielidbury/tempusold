@@ -38,7 +38,7 @@ SELECT
 FROM invite
 	LEFT JOIN shift ON shift.employee = invite.employee AND shift.date = invite.session
 	LEFT JOIN session ON session.date = invite.session
-	LEFT JOIN (SELECT employee, SEC_TO_TIME(SUM(TIME_TO_SEC(COALESCE(clock_off, CURRENT_TIME())) - TIME_TO_SEC(clock_on))) AS length FROM clock WHERE session = CURRENT_DATE() GROUP BY employee) clock
+	LEFT JOIN (SELECT employee, SEC_TO_TIME(SUM(TIME_TO_SEC(COALESCE(clock_off, CURRENT_TIME())) - TIME_TO_SEC(clock_on))) AS length FROM clock WHERE session = '{$_GET['session']}' GROUP BY employee) clock
 		ON clock.employee = invite.employee
 WHERE session = ?
 	AND accepted = 1
