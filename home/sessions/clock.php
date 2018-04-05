@@ -22,8 +22,16 @@ if ($mode == "user")
 
 if ($_SERVER['REQUEST_METHOD'] == "POST") {
 	if ($mode == "admin") {
+		// Admin actions
 		if (isset($_POST['employee']))
+			// Toggles a specific user
 			q($conn, "CALL toggleClock(?)", ['args'=>$_POST['employee']]);
+		elseif ($_POST['submit'] == "All On")
+			// Turns all on
+			q($conn, "INSERT INTO clock (session, employee, clock_on) SELECT CURRENT_DATE(), name, CURRENT_TIME() FROM employee LEFT JOIN clock ON clock.session = CURRENT_DATE() AND clock.employee = employee.name AND clock_off IS NULL WHERE clock.session IS NULL");
+		elseif ($_POST['submit'] == "All Off")
+			// Turns all off
+			q($conn, "UPDATE clock SET clock_off = CURRENT_TIME() WHERE session = CURRENT_DATE() AND clock_off IS NULL");
 	} elseif ($mode == "kiosk" && $_POST['username'] != "") {
 		$errors = array();
 
@@ -133,6 +141,10 @@ $clocking_data = q($conn, $clocking_query, ['force'=>"TABLE"]);
 						</tr>
 					</table>
 					<input type="submit" value="Toggle Clock" name="submit">
+				<?php endif; ?>
+				<?php if ($mode == "admin"): ?>
+					<input type="submit" name="submit" value="All On">
+					<input type="submit" name="submit" value="All Off">
 				<?php endif; ?>
 			</form>
 
