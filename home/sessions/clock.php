@@ -61,7 +61,7 @@ WHERE session = CURRENT_DATE()
 	AND shift.employee IS NULL
 EOT;
 
-$clocking_data = q($conn, $clocking_query)
+$clocking_data = q($conn, $clocking_query, ['force'=>"TABLE"]);
 
 ?>
 <!DOCTYPE html>
