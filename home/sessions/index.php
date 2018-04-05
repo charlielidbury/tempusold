@@ -23,8 +23,8 @@ SELECT
 	CONCAT(
 		"<a href='delete_session.php?session=", `session`.`date`, "&redirect=index.php'>Cancel</a>|",
 		"<a href='edit_session.php?session=", `session`.`date`, "&redirect=index.php'>Edit</a>|",
-		"<a href='finish_session.php?session=", `session`.`date`, "&redirect=../payments/index.php'>Finish</a>|",
-		"<a href='invite_people.php?session=", `session`.`date`, "&redirect=index.php'>Invite</a>"
+		"<a href='invite_people.php?session=", `session`.`date`, "&redirect=index.php'>Invite</a>|",
+		"<a href='finish_session.php?session=", `session`.`date`, "&redirect=../payments/index.php'>Finish</a>"
 	) AS `Actions`
 FROM `session`
 	LEFT JOIN (SELECT date, COUNT(*) AS shifts FROM shift GROUP BY date) s ON s.date = session.date
@@ -104,6 +104,7 @@ $render_upcoming = q($conn, $query);
 			<ul>
 				<li><a href="create_session.php?redirect=index.php">Create Session</a></li>
 				<li><a href="quick_session.php?redirect=index.php">Quick Session</a></li>
+				<li><a href='clock.php'>Clock</a></li>
 			</ul>
 
 			<?php if ($render_upcoming)

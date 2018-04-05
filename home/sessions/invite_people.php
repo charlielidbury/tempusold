@@ -149,7 +149,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') // update has been pressed
 				<div id="auto">
 					<!-- Size of search -->
 					<label>People to Invite: </label>
-					<input type="number" min="1" max="6" step="1" value="1" name="size">
+					<input type="number" min="1" max="<?= q($conn, "SELECT COUNT(*) FROM employee"); ?>" step="1" value="1" name="size">
 					<br>
 					<!-- Search criteria -->
 					<label>Sort by</label>
@@ -159,7 +159,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') // update has been pressed
 						<option value="rate">Hourly Rate</option>
 					</select>
 					<select name="direction">
-						<option value="asc">Lowest First</option>y
+						<option value="asc">Lowest First</option>
 						<option value="desc">Highest First</option>
 					</select>
 					<br>

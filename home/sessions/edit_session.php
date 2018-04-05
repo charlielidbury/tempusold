@@ -90,6 +90,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') // update has been pressed
 		]);
 }
 
+$invite_query = <<<EOT
+SELECT
+	*,
+	CONCAT("<input type='submit' name='employee' value='", invite.employee ,"'>") AS `Delete`  
+FROM invite
+WHERE session = ?
+EOT;
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -177,7 +185,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') // update has been pressed
 			<!-- INVITES -->
 			<h3>Invites</h3>
 			<form action="<?= "http://{$_SERVER["HTTP_HOST"]}{$_SERVER["REQUEST_URI"]}" ?>" method="POST">
-				<?php table2HTML($conn, "CALL sessionInvites(?)", $session_data['date']); ?>
+				<?php table2HTML($conn, $invite_query, $session_data['date']); ?>
 			</form>
 		</div>
 
