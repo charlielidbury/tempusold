@@ -49,7 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
 		if (!count($errors))
 			q($conn, "CALL toggleClock(?)", ['args'=>$_POST['username']]);
 	}
-
+	header("Location: http://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}");
 }
 
 $clocking_query = <<<EOT
@@ -92,8 +92,15 @@ $clocking_data = q($conn, $clocking_query, ['force'=>"TABLE"]);
 				times.forEach(time => { document.getElementById(time.employee).innerHTML = time.time.format("HH:mm:ss") });
 			}
 
+			// REFRESHING THE TIMES
 			window.setInterval(incrementTimes, 1000);
-			window.setInterval("location.reload(true)", 30000);
+
+			// REFRESHING THE WHOLE SCREEN
+			<?php if (isset($_GET['rr'])): // (refresh rate) ?>
+				window.setInterval("location.reload(true)", <?= $_GET['rr'] ?>);
+			<?php else: ?>
+				window.setInterval("location.reload(true)", 30000);
+			<?php endif; ?>
 		</script>
 	</head>
 	<body>
