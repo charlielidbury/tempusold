@@ -36,10 +36,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') // update has been pressed
 		    $errors[] = "Icon must be link to valid image";
 	}
 
-	// CHECK: RATE IS A NUMBER
-	if (! (is_numeric($_POST['rate']) || $restricted) )
-		$errors[] = "Rate must be an integer or decimal value";
-
 	// UPDATE ROW
 	if (!count($errors))
 	{
